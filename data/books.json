@@ -1,5 +1,24 @@
 [
   {
+    "period": "2024–2025",
+    "books": [
+      {
+        "title": "A Universe of Consciousness",
+        "img": "images/book_covers/2024-2025/02_a_universe_of_consciousness.jpg",
+        "link": "https://www.amazon.com/Universe-Consciousness-Matter-Becomes-Imagination/dp/0465013767",
+        "comment": "Edelman and Tononi present a full-scale theory of consciousness based on neural group selection and reentrant signaling. Rather than focusing on experimental data, the book offers a high-level conceptual framework for how matter becomes imagination.",
+        "review": "post.html?slug=reading-a-universe-of-consciousness"
+      },
+      {
+        "title": "Reality+",
+        "img": "images/book_covers/2024-2025/01_reality_plus.jpg",
+        "link": "https://www.amazon.com/Reality-Virtual-Worlds-Problems-Philosophy/dp/0393635805",
+        "comment": "Philosophy meets modern technology. Chalmers argues that virtual reality is genuine reality, drawing on ancient thought experiments and modern science to rethink what 'real' means.",
+        "review": "post.html?slug=reality-by-david-chalmers-a-chapter-by-chapter-review"
+      }
+    ]
+  },
+  {
     "period": "2023–2024",
     "books": [
       {
