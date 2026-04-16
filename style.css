@@ -54,7 +54,7 @@
 }
 
 @media (prefers-color-scheme: dark) {
-    :root {
+    :root:not([data-theme="light"]) {
         --bg: #111110;
         --text: #e5e5e3;
         --text-muted: #8a8a88;
@@ -64,6 +64,17 @@
         --card-bg: #1c1b1a;
         --book-hover-bg: #222;
     }
+}
+
+:root[data-theme="dark"] {
+    --bg: #111110;
+    --text: #e5e5e3;
+    --text-muted: #8a8a88;
+    --accent: #e08b73;
+    --border: #2a2928;
+    --surface: #1c1b1a;
+    --card-bg: #1c1b1a;
+    --book-hover-bg: #222;
 }
 
 html {
@@ -189,6 +200,7 @@ h1, h2, h3 {
 }
 
 .now {
+    font-family: 'Lora', Georgia, serif;
     font-size: 1rem;
     color: var(--text-muted);
     line-height: 1.65;
@@ -321,6 +333,7 @@ main h2 {
 }
 
 .nav-card-desc {
+    font-family: 'Lora', Georgia, serif;
     font-size: 0.85rem;
     color: var(--text-muted);
     line-height: 1.55;
@@ -376,6 +389,7 @@ main h2 {
 
 /* Narrative */
 .theme-narrative {
+    font-family: 'Lora', Georgia, serif;
     font-size: 0.9rem;
     color: var(--text-muted);
     line-height: 1.65;
@@ -430,6 +444,7 @@ main h2 {
 }
 
 .post-card-title {
+    font-family: 'Lora', Georgia, serif;
     font-size: 0.95rem;
     font-weight: 500;
     color: var(--text);
@@ -456,6 +471,7 @@ main h2 {
     line-height: 1.45;
     overflow: hidden;
     text-overflow: ellipsis;
+    padding-left: 0.75rem;
     white-space: nowrap;
     margin-top: 0.15rem;
 }
@@ -541,6 +557,7 @@ main h2 {
 }
 
 .bookshelf-page .book-entry-title {
+    font-family: 'Lora', Georgia, serif;
     font-size: 0.9rem;
     font-weight: 600;
     line-height: 1.3;
@@ -548,6 +565,7 @@ main h2 {
 }
 
 .bookshelf-page .book-entry-comment {
+    font-family: 'Lora', Georgia, serif;
     font-size: 0.82rem;
     color: var(--text-muted);
     line-height: 1.5;
@@ -592,6 +610,7 @@ main h2 {
 }
 
 .project-card-title {
+    font-family: 'Lora', Georgia, serif;
     font-size: 1rem;
     font-weight: 600;
     line-height: 1.3;
@@ -719,6 +738,7 @@ main h2 {
 }
 
 .journey-chapter p {
+    font-family: 'Lora', Georgia, serif;
     font-size: 0.92rem;
     color: var(--text-muted);
     line-height: 1.85;
@@ -751,6 +771,7 @@ main h2 {
 }
 
 .footer-note {
+    font-family: 'Lora', Georgia, serif;
     font-size: 0.82rem;
     color: var(--text-muted);
     font-style: italic;
@@ -771,6 +792,7 @@ main h2 {
 }
 
 .site-nav-home {
+    font-family: 'Lora', Georgia, serif;
     font-size: 0.95rem;
     font-weight: 600;
     color: var(--text);
@@ -932,4 +954,30 @@ main h2 {
     border: none;
     border-top: 1px solid var(--border);
     margin: 2rem 0;
+}
+
+/* ---- Theme toggle ---- */
+
+.theme-toggle {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: 100;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--text-muted);
+    transition: color 0.2s, background 0.2s, border-color 0.2s;
+    padding: 0;
+}
+
+.theme-toggle:hover {
+    color: var(--text);
+    background: var(--card-bg);
 }

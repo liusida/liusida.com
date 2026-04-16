@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Qzone Archive Reader</title>
+<style>
+  :root {
+    --bg: #faf9f7;
+    --surface: #fff;
+    --text: #2c2c2c;
+    --text-muted: #777;
+    --border: #e8e5e0;
+    --accent: #8b7355;
+    --accent-light: #f5f0ea;
+    --sidebar-w: 340px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    height: 100vh;
+    display: flex;
+    overflow: hidden;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    width: var(--sidebar-w);
+    min-width: var(--sidebar-w);
+    height: 100vh;
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    background: var(--surface);
+  }
+  .sidebar-header {
+    padding: 1.25rem 1rem 0.75rem;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .sidebar-header h1 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.6rem;
+    letter-spacing: -0.01em;
+  }
+  .search-box {
+    width: 100%;
+    padding: 0.45rem 0.7rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 0.85rem;
+    outline: none;
+    background: var(--bg);
+    transition: border-color 0.2s;
+  }
+  .search-box:focus { border-color: var(--accent); }
+  .sidebar-meta {
+    padding: 0.5rem 1rem;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+  .filter-btn {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 0.15rem 0.5rem;
+    font-size: 0.72rem;
+    cursor: pointer;
+    color: var(--text-muted);
+    transition: all 0.15s;
+  }
+  .filter-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .filter-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+  .post-list {
+    flex: 1;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  .year-group { }
+  .year-label {
+    position: sticky;
+    top: 0;
+    background: var(--accent-light);
+    padding: 0.3rem 1rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: 0.04em;
+    z-index: 2;
+  }
+  .post-item {
+    padding: 0.6rem 1rem;
+    border-bottom: 1px solid #f0eeea;
+    cursor: pointer;
+    transition: background 0.12s;
+  }
+  .post-item:hover { background: var(--accent-light); }
+  .post-item.active { background: var(--accent-light); border-left: 3px solid var(--accent); }
+  .post-item-title {
+    font-size: 0.85rem;
+    font-weight: 500;
+    line-height: 1.35;
+    margin-bottom: 0.2rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .post-item-meta {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+  }
+  .post-item-cat {
+    background: var(--bg);
+    padding: 0.05rem 0.35rem;
+    border-radius: 3px;
+    margin-left: 0.4rem;
+  }
+
+  /* Reader */
+  .reader {
+    flex: 1;
+    height: 100vh;
+    overflow-y: auto;
+    display: flex;
+    justify-content: center;
+  }
+  .reader-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+  }
+  .reader-content {
+    max-width: 680px;
+    width: 100%;
+    padding: 3rem 2rem 6rem;
+  }
+  .reader-title {
+    font-family: 'Lora', Georgia, serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    line-height: 1.35;
+    margin-bottom: 0.6rem;
+  }
+  .reader-meta {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    margin-bottom: 2rem;
+    padding-bottom: 1.25rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .reader-body {
+    font-family: 'Lora', Georgia, serif;
+    font-size: 1.02rem;
+    line-height: 1.85;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+  .reader-body .img-placeholder {
+    display: inline-block;
+    background: var(--accent-light);
+    color: var(--accent);
+    font-size: 0.75rem;
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+    font-family: -apple-system, sans-serif;
+    vertical-align: middle;
+  }
+  .reader-nav {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+  }
+  .reader-nav button {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.5rem 1.2rem;
+    font-size: 0.82rem;
+    cursor: pointer;
+    color: var(--text-muted);
+    transition: all 0.15s;
+  }
+  .reader-nav button:hover { border-color: var(--accent); color: var(--accent); }
+  .reader-nav button:disabled { opacity: 0.3; cursor: default; }
+
+  .post-list::-webkit-scrollbar,
+  .reader::-webkit-scrollbar { width: 6px; }
+  .post-list::-webkit-scrollbar-thumb,
+  .reader::-webkit-scrollbar-thumb { background: #ddd; border-radius: 3px; }
+
+  @media (max-width: 768px) {
+    .sidebar { width: 100%; min-width: 100%; }
+    .reader { display: none; }
+    body.reading .sidebar { display: none; }
+    body.reading .reader { display: flex; }
+    .reader-content { padding: 1.5rem 1rem 4rem; }
+    .back-btn { display: block !important; }
+  }
+  .back-btn {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 0.85rem;
+    color: var(--accent);
+    cursor: pointer;
+    margin-bottom: 1rem;
+    padding: 0;
+  }
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="sidebar-header">
+    <h1>Qzone Archive</h1>
+    <input type="text" class="search-box" placeholder="Search titles and content..." id="search">
+  </div>
+  <div class="sidebar-meta" id="meta"></div>
+  <div class="post-list" id="postList"></div>
+</div>
+
+<div class="reader" id="reader">
+  <div class="reader-empty" id="readerEmpty">Select a post to read</div>
+</div>
+
+<script>
+var posts = [];
+var filtered = [];
+var currentIdx = -1;
+var activeYear = null;
+var activeCat = null;
+
+fetch('all_posts_clean.json')
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    posts = data;
+    filtered = posts.slice();
+    buildMeta();
+    renderList();
+    var params = new URLSearchParams(window.location.search);
+    var pi = params.get('i');
+    if (pi !== null) showPost(parseInt(pi, 10));
+  })
+  .catch(function() {
+    document.getElementById('readerEmpty').textContent =
+      'Could not load data. Run: python3 -m http.server 8080';
+  });
+
+function buildMeta() {
+  var cats = {};
+  posts.forEach(function(p) { cats[p.category] = (cats[p.category] || 0) + 1; });
+  var sorted = Object.keys(cats).sort(function(a,b) { return cats[b] - cats[a]; });
+  var el = document.getElementById('meta');
+  var html = '<span>' + posts.length + ' posts</span>';
+  var btn = document.createElement('button');
+  btn.className = 'filter-btn' + (activeCat === null ? ' active' : '');
+  btn.textContent = 'All';
+  btn.onclick = function() { activeCat = null; applyFilters(); };
+  el.innerHTML = '';
+  el.appendChild(document.createTextNode(posts.length + ' posts  '));
+  el.appendChild(btn);
+  sorted.slice(0, 6).forEach(function(c) {
+    var b = document.createElement('button');
+    b.className = 'filter-btn' + (activeCat === c ? ' active' : '');
+    b.textContent = c + ' (' + cats[c] + ')';
+    b.onclick = function() { activeCat = (activeCat === c ? null : c); applyFilters(); };
+    el.appendChild(b);
+  });
+}
+
+function applyFilters() {
+  var q = document.getElementById('search').value.toLowerCase();
+  filtered = posts.filter(function(p) {
+    if (activeCat && p.category !== activeCat) return false;
+    if (q && p.title.toLowerCase().indexOf(q) === -1 && p.text.toLowerCase().indexOf(q) === -1) return false;
+    return true;
+  });
+  buildMeta();
+  renderList();
+}
+
+document.getElementById('search').addEventListener('input', function() {
+  applyFilters();
+});
+
+function renderList() {
+  var el = document.getElementById('postList');
+  el.innerHTML = '';
+  var curYear = '';
+  filtered.forEach(function(p, i) {
+    var y = p.date.substring(0, 4);
+    if (y !== curYear) {
+      curYear = y;
+      var count = filtered.filter(function(x) { return x.date.startsWith(y); }).length;
+      var lbl = document.createElement('div');
+      lbl.className = 'year-label';
+      lbl.textContent = y + ' (' + count + ')';
+      el.appendChild(lbl);
+    }
+    var item = document.createElement('div');
+    item.className = 'post-item' + (currentIdx === i ? ' active' : '');
+    item.innerHTML = '<div class="post-item-title">' + esc(p.title) + '</div>'
+      + '<div class="post-item-meta">' + p.date.substring(0, 10)
+      + '<span class="post-item-cat">' + esc(p.category) + '</span></div>';
+    item.onclick = (function(idx) { return function() { showPost(idx); }; })(i);
+    el.appendChild(item);
+  });
+}
+
+function showPost(idx) {
+  currentIdx = idx;
+  var p = filtered[idx];
+  var reader = document.getElementById('reader');
+  var body = p.text.replace(/\[图片\]/g, '<span class="img-placeholder">image</span>');
+
+  reader.innerHTML = '<div class="reader-content">'
+    + '<button class="back-btn" onclick="goBack()">&larr; Back to list</button>'
+    + '<h1 class="reader-title">' + esc(p.title) + '</h1>'
+    + '<div class="reader-meta">' + p.date + '  &middot;  ' + esc(p.category) + '</div>'
+    + '<div class="reader-body">' + body + '</div>'
+    + '<div class="reader-nav">'
+    + '<button onclick="showPost(' + (idx - 1) + ')"' + (idx === 0 ? ' disabled' : '') + '>&larr; Prev</button>'
+    + '<button onclick="showPost(' + (idx + 1) + ')"' + (idx >= filtered.length - 1 ? ' disabled' : '') + '>Next &rarr;</button>'
+    + '</div></div>';
+  reader.scrollTop = 0;
+  document.body.classList.add('reading');
+  renderList();
+}
+
+function goBack() {
+  document.body.classList.remove('reading');
+}
+
+function esc(s) {
+  var d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'ArrowLeft' && currentIdx > 0) showPost(currentIdx - 1);
+  if (e.key === 'ArrowRight' && currentIdx < filtered.length - 1) showPost(currentIdx + 1);
+  if (e.key === 'Escape') goBack();
+});
+</script>
+</body>
+</html>
