@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Journey — Sida Liu</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <nav class="site-nav">
+        <a href="/" class="site-nav-home">Sida Liu</a>
+        <div class="site-nav-links">
+            <a href="writing.html">Writing</a>
+            <a href="bookshelf.html">Bookshelf</a>
+            <a href="projects.html">Projects</a>
+            <a href="journey.html" class="active">Journey</a>
+        </div>
+    </nav>
+
+    <main>
+        <article class="journey-page reveal">
+            <div class="page-header">
+                <h2>Journey</h2>
+                <button class="order-toggle" data-order="oldest" onclick="toggleOrder(this)">Oldest first ↑</button>
+            </div>
+
+            <section class="journey-chapter">
+                <span class="journey-year">2000 – 2004</span>
+                <h3>Zhejiang University</h3>
+                <p>
+                    I studied Information Management and Information Systems at Zhejiang University,
+                    in the School of Management. My degree is a B.S. in Management — back then,
+                    "CIO" was still a new word, and the program emphasized how organizations
+                    handle information.
+                </p>
+                <p>
+                    But I was drawn to the technical side. I joined a small lab in the Computer
+                    Science department and picked up real software engineering skills alongside
+                    the management curriculum — data structures, OOP, databases, networking.
+                </p>
+            </section>
+
+            <section class="journey-chapter">
+                <span class="journey-year">2004 – 2016</span>
+                <h3>Into the Real World</h3>
+                <p>
+                    After graduating, I discovered that information management isn't usually the
+                    most important function in a company. Marketing, sales, finance, R&amp;D — those
+                    tend to matter more.
+                </p>
+                <p>
+                    I caught the wave of e-commerce early and founded a company in 2009.
+                    Through persistent effort, it survived its early challenges and continues
+                    to operate today.
+                </p>
+            </section>
+
+            <section class="journey-chapter">
+                <span class="journey-year">2016 – 2018</span>
+                <h3>A New Curiosity</h3>
+                <p>
+                    After I got married and had a kid, I started trying to think about everything
+                    in a new way. Intelligence and life became the two most interesting things I
+                    cared about. So I taught myself math and other foundations, working through
+                    online courses — Stanford's Machine Learning (2016), deeplearning.ai's Neural
+                    Networks and Deep Learning (2017), and Geoffrey Hinton's Neural Networks for
+                    Machine Learning from the University of Toronto (2017).
+                </p>
+                <p>
+                    I started writing code to experiment — implementing neural networks from
+                    scratch with Python and NumPy, playing with TensorFlow, and building
+                    interactive demos to understand what I was learning.
+                </p>
+            </section>
+
+            <section class="journey-chapter">
+                <span class="journey-year">2019 – 2021</span>
+                <h3>University of Vermont</h3>
+                <p>
+                    In 2019, I went to the University of Vermont to study Complex Systems and
+                    Data Science. Deep learning was one of the hottest topics, and the program
+                    also valued visualization as a tool for understanding complex systems. I
+                    studied both.
+                </p>
+                <p>
+                    My advisor was <a href="https://jbongard.github.io/" target="_blank" rel="noopener">Josh Bongard</a>,
+                    who studies evolutionary robotics and is a great educator.
+                    <a href="https://skriegman.github.io/" target="_blank" rel="noopener">Sam Kriegman</a>,
+                    then a PhD candidate under Josh, was the one who introduced me to the lab
+                    and showed me what scientific research actually looks like. I consider both
+                    of them my mentors.
+                </p>
+                <p>
+                    My thesis explored the Multi-Robot Continuous Control problem in deep
+                    reinforcement learning — how one controller can manage robots with different
+                    body shapes by arranging their sensory inputs and outputs in specific ways.
+                    During that time I also rewrote a CPU-based voxel physics engine into a
+                    GPU-accelerated one (<a href="https://github.com/voxcraft/voxcraft-sim" target="_blank" rel="noopener">Voxcraft</a>),
+                    and contributed to the <a href="https://cdorgs.github.io/" target="_blank" rel="noopener">Xenobots</a>
+                    project — living robots designed by computers and built from frog cells.
+                </p>
+                <p>
+                    I also miss the peaceful, friendly life in Vermont.
+                </p>
+            </section>
+
+            <section class="journey-chapter">
+                <span class="journey-year">2021 – 2024</span>
+                <h3>Exploring</h3>
+                <p>
+                    After graduating in 2021, I felt I wasn't ready for focused research. I was
+                    too curious about too many things, and I didn't have a clear perspective yet.
+                    So I paused, read widely — both books and papers — and worked on small
+                    projects to explore possibilities.
+                </p>
+                <p>
+                    For a while I advised an investment company in Shanghai on AI trends, helping
+                    simplify complex AI concepts and evaluate emerging startups. But mostly, I was
+                    building my own understanding — reading about cognition, philosophy,
+                    mathematics, consciousness, and the nature of intelligence.
+                </p>
+            </section>
+
+            <section class="journey-chapter">
+                <span class="journey-year">Now</span>
+                <h3>Residual Stream</h3>
+                <p>
+                    Recently, I discovered that the residual stream inside large language models
+                    is very interesting. I started to focus on this — exploring mechanistic
+                    interpretability and beyond, trying to understand how these models actually
+                    work under the hood.
+                </p>
+                <p>
+                    Now I live in Singapore and do independent research, using a
+                    <a href="https://github.com/liusida/ai-experiments" target="_blank" rel="noopener">quick prototyping platform</a>
+                    to run experiments and sharing discoveries along the way.
+                </p>
+            </section>
+
+        </article>
+    </main>
+
+    <footer class="footer">
+        <div class="social-links">
+            <a href="https://github.com/liusida" aria-label="GitHub">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+            </a>
+            <a href="https://x.com/liusida2007" aria-label="X / Twitter">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+            </a>
+            <a href="https://xhslink.com/m/9s7XWUIVsQs" aria-label="Xiaohongshu">
+                <img src="images/xhs-logo.png" alt="小红书" class="xhs-icon">
+            </a>
+        </div>
+        <p class="footer-note">You can pronounce my name as <em>Star</em>, since that's what it sounds in Mandarin Chinese.</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

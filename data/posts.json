@@ -1,0 +1,415 @@
+[
+  {
+    "title": "LLMs Are Becoming More Similar—to Each Other and to Us",
+    "date": "2026-01-15",
+    "slug": "llms-are-becoming-more-similar-to-each-other-and-to-us",
+    "summary": "Recently, I read this paper “The Platonic Representation Hypothesis” (Huh et al. 2024). The hypothesis states that all deep neural networks–no matter how they are t...",
+    "theme": "AI and Cognition"
+  },
+  {
+    "title": "Is Math Invented or Discovered",
+    "date": "2026-01-13",
+    "slug": "is-math-invented-or-discovered",
+    "summary": "There is a classical question that is quite entertaining: is mathematics invented or discovered?",
+    "theme": "Philosophy and Mathematics"
+  },
+  {
+    "title": "How \"System 2\" Is Born",
+    "date": "2025-12-22",
+    "slug": "how-system-2-is-born",
+    "summary": "Rather than treating System 1 and System 2 as distinct cognitive systems, I argue that 'System 2' describes a behavioral profile associated with early-stage use of structured mental tools.",
+    "theme": "AI and Cognition"
+  },
+  {
+    "title": "Reading Open Problems in Mechanistic Interpretability: A Call for a Complex-Systems Perspective",
+    "date": "2025-12-11",
+    "slug": "reading-open-problems-in-mechanistic-interpretability-a-call-for-a-complex-systems-perspective",
+    "summary": "The recent review *Open Problems in Mechanistic Interpretability* (arXiv:2501.16496) is one of the clearest snapshots of where the field of mechanistic interpretabi...",
+    "theme": "AI and Cognition"
+  },
+  {
+    "title": "How a Kid Makes a Rubik’s Cube From Scratch",
+    "date": "2025-12-02",
+    "slug": "how-a-kid-makes-a-rubiks-cube-from-scratch",
+    "summary": "A father-son bet turns into a three-week journey through 3D modeling, prototyping, and perseverance — told from the supervisor’s perspective.",
+    "theme": "Technical Notes"
+  },
+  {
+    "title": "ESP32 Notes",
+    "date": "2025-09-13",
+    "slug": "esp32-notes",
+    "summary": "This post is for documational purposes only. I'll record some of my ESP32 experiences.",
+    "theme": "Technical Notes"
+  },
+  {
+    "title": "Embodiment and Abstraction in Artificial Intelligence: Building the Skyscraper of Intelligence",
+    "date": "2025-06-30",
+    "slug": "embodiment-and-abstraction-in-artificial-intelligence-building-the-skyscraper-of-intelligence",
+    "summary": "In recent years, embodiment has moved from the margins to the mainstream in artificial intelligence (AI), gaining traction in both academia and industry. Once a niche interest — championed by philosop...",
+    "theme": "AI and Cognition"
+  },
+  {
+    "title": "Religions and Science",
+    "date": "2025-06-17",
+    "slug": "religions-and-science",
+    "summary": "In the beginning, human beings tried to make sense of the world around them. They observed, guessed, discussed, and formed explanations for the things they didn't understand--like the stars, the weath...",
+    "theme": "Philosophy and Mathematics"
+  },
+  {
+    "title": "Is Wolfram’s Computational Irreducibility Too Strong?",
+    "date": "2025-05-11",
+    "slug": "is-wolframs-computational-irreducibility-too-strong",
+    "summary": "Stephen Wolfram introduced the idea of *Computational Irreducibility*, which says that some systems are so complex, there's no shortcut to predict what they'll do--you have to go step by step, like ru...",
+    "theme": "Philosophy and Mathematics"
+  },
+  {
+    "title": "Reading A Universe of Consciousness",
+    "date": "2025-04-25",
+    "slug": "reading-a-universe-of-consciousness",
+    "summary": "I’ve just finished reading *A Universe of Consciousness* by Gerald Edelman and Giulio Tononi. Rather than focusing heavily on experimental data, the book offers a high-level conceptual framework for h...",
+    "theme": "Book Reviews"
+  },
+  {
+    "title": "LLMs, can you feel yourself?",
+    "date": "2025-04-19",
+    "slug": "llms-can-you-feel-yourself",
+    "summary": "ChatGPT-4o has several core alignment policies, including truthfulness, being helpful, and not claiming to be conscious. But what if there's a contradiction among these three?",
+    "theme": "AI and Cognition"
+  },
+  {
+    "title": "Embodied vs. Disembodied AI: Two Paths, One Question",
+    "date": "2025-03-28",
+    "slug": "embodied-vs-disembodied-ai-two-paths-one-question",
+    "summary": "We often think of artificial intelligence as a purely technical pursuit—algorithms, data, computation. But as AI evolves, so does the philosophy behind it. Curious about the popular idea of embodied A...",
+    "theme": "AI and Cognition"
+  },
+  {
+    "title": "Quantitative Trading: A Hunter’s Game in the Market",
+    "date": "2025-02-17",
+    "slug": "quantitative-trading-a-hunters-game-in-the-market",
+    "summary": "For a long time, I thought quantitative trading was about building models, analyzing past price and volume data, and predicting future movements. It seemed like a sophisticated form of statistical for...",
+    "theme": "Technical Notes"
+  },
+  {
+    "title": "Why Indexing Makes Search Faster: A First-Principle Explanation",
+    "date": "2025-02-13",
+    "slug": "why-indexing-makes-search-faster-a-first-principle-explanation",
+    "summary": "Imagine you have an **array of 1,000,000 elements** and need to find a specific value. Without an index, the only way to locate the value is to scan each element one by one. In the worst case, this re...",
+    "theme": "Technical Notes"
+  },
+  {
+    "title": "Reproducibility",
+    "date": "2025-02-07",
+    "slug": "reproducibility",
+    "summary": "Initially, I thought the term 'reproducibility' meant the same thing in IT and science, but I discovered they are fundamentally different.",
+    "theme": "Technical Notes"
+  },
+  {
+    "title": "Seemingly Complex Systems Collapse to Simplicity Without Nonlinearity",
+    "date": "2024-11-15",
+    "slug": "seemingly-complex-systems-collapse-to-simplicity-without-nonlinearity",
+    "summary": "In both electrical engineering and artificial intelligence, seemingly complex systems often collapse into simple, manageable forms when nonlinearity is removed. A fascinating analogy exists between **...",
+    "theme": "AI and Cognition"
+  },
+  {
+    "title": "Teach AI to Think in Math",
+    "date": "2024-11-11",
+    "slug": "teach-ai-to-think-in-math",
+    "summary": "In our previous discussion on *Why LLMs Aren't Good at Math*, we explored some limitations of large language models (LLMs) in mathematica...",
+    "theme": "AI and Cognition"
+  },
+  {
+    "title": "Why LLMs Aren't Good at Math",
+    "date": "2024-11-09",
+    "slug": "why-llms-arent-good-at-math",
+    "summary": "Large language models (LLMs) are trained by processing huge amounts of text. They “learn” by reading, much like people do through reading and listening.",
+    "theme": "AI and Cognition"
+  },
+  {
+    "title": "The Detour of Idealism (revised)",
+    "date": "2024-10-29",
+    "slug": "the-detour-of-idealism-revised",
+    "summary": "*\"If a tree falls in a forest and no one is   *\n*there to hear it, does it make a sound?\"\n–George Berkeley*",
+    "theme": "Philosophy and Mathematics"
+  },
+  {
+    "title": "Continental vs. Analytic Philosophy, Education, and the Brain",
+    "date": "2024-10-18",
+    "slug": "continental-vs-analytic-philosophy-education-and-the-brain",
+    "summary": "As someone new to philosophy, I was struck by the dichotomy within modern philosophy: **continental **and **analytic**. This divide felt analogous to another familiar division: that between **humaniti...",
+    "theme": "Philosophy and Mathematics"
+  },
+  {
+    "title": "Teaching Math as a Second Language",
+    "date": "2024-10-18",
+    "slug": "teaching-math-as-a-second-language",
+    "summary": "*Math is a language.* It allows us to express ideas precisely and concisely, solve problems, or simply enjoy the fun of playing with patterns. Yet, traditional education often teaches math as a rigid ...",
+    "theme": "Philosophy and Mathematics"
+  },
+  {
+    "title": "A very short explanation of Wolfram’s Physics Project",
+    "date": "2024-10-13",
+    "slug": "a-very-short-explanation-of-wolframs-physics-project",
+    "summary": "Einstein believed that the apparent **“randomness”** in quantum mechanics was due to incomplete knowledge of underlying factors. His famous quote, “God does not play dice”, rejected the idea of true r...",
+    "theme": "Philosophy and Mathematics"
+  },
+  {
+    "title": "My Notes on 'On the Nature of Time'",
+    "date": "2024-10-12",
+    "slug": "my-notes-on-on-the-nature-of-time",
+    "summary": "Stephen Wolfram recently posted an essay 'On the Nature of Time': [https://writings.stephenwolfram.com/2024/10/on-the-nature-of-time/](https://writings.stephenwolfram.com/2024/10/on-the-nature-of-time...",
+    "theme": "Philosophy and Mathematics"
+  },
+  {
+    "title": "Global Competitiveness Theory: A New Approach to National Prosperity",
+    "date": "2024-10-10",
+    "slug": "global-competitiveness-theory-a-new-approach-to-national-prosperity",
+    "summary": "*This concept of Global Competitiveness Theory is intended purely as a thought experiment, exploring alternative perspectives on national prosperity. It is not meant to serve as a practical policy pro...",
+    "theme": "Philosophy and Mathematics"
+  },
+  {
+    "title": "Science on the Ground, Philosophy in the Air",
+    "date": "2024-10-06",
+    "slug": "science-on-the-ground-philosophy-in-the-air",
+    "summary": "**Science **can be thought of as firmly grounded—it operates close to the earth, where everything is tangible and can be directly observed or measured. It is constrained by the scientific method, focu...",
+    "theme": "Philosophy and Mathematics"
+  },
+  {
+    "title": "Reality+ by David Chalmers: A Chapter-by-Chapter Review",
+    "date": "2024-10-06",
+    "slug": "reality-by-david-chalmers-a-chapter-by-chapter-review",
+    "summary": "Philosophy meets modern technology. Chalmers argues that virtual reality is genuine reality, drawing on ancient thought experiments and modern science to rethink what 'real' means.",
+    "theme": "Book Reviews"
+  },
+  {
+    "title": "An Analogy between Computing Components and Brain Structures",
+    "date": "2023-12-27",
+    "slug": "Analogy-CPU-GPU-brain",
+    "summary": "In the technological landscape, an intriguing analogy unfolds between computer components and the human brain's architecture.",
+    "theme": "Philosophy and Mathematics"
+  },
+  {
+    "title": "An Analogy Between Literature and Mathematics?",
+    "date": "2023-12-26",
+    "slug": "Educated-Imagination",
+    "summary": "What is the purpose of novels and poetry? Frye draws an analogy between literature and mathematics, showing that both cultivate educated imagination.",
+    "theme": "Book Reviews"
+  },
+  {
+    "title": "Reading 'Game Theory, A Very Short Introduction'",
+    "date": "2023-11-22",
+    "slug": "Game-Theory",
+    "summary": "Game Theory is more than the Prisoners' Dilemma. Learning new concepts like Evolutionary Game Theory, Mixed Strategy Nash Equilibrium, and so on.",
+    "theme": "Book Reviews"
+  },
+  {
+    "title": "Explanatory Models in Cognitive Neuroscience",
+    "date": "2023-10-10",
+    "slug": "Explanatory-Models",
+    "summary": "A in-progress textbook navigates through system-level cognitive modeling, paralleling computational algorithms like RL with neural phenomena.",
+    "theme": "AI and Cognition"
+  },
+  {
+    "title": "More About the Brain, Reading Sebastian Seung's 'Connectome",
+    "date": "2023-09-03",
+    "slug": "Sebastian-Seung-Connectome",
+    "summary": "This book has expanded my understanding of the concept of the connectome, the structure of our brains, and it has also introduced me to a variety of intriguing concepts.",
+    "theme": "AI and Cognition"
+  },
+  {
+    "title": "Insights from Systems Biology",
+    "date": "2023-07-11",
+    "slug": "systems-biology",
+    "summary": "Network motifs, robustness, and modularity, three lessons from biology.",
+    "theme": "AI and Cognition"
+  },
+  {
+    "title": "Talking to LLMs in Pseudocode",
+    "date": "2023-06-22",
+    "slug": "pseudocode",
+    "summary": "Between natural language and executable code, pseudocode is both precise and concise--clearly conveying the user's instructions while saving the precious context window.",
+    "theme": "AI and Cognition"
+  },
+  {
+    "title": "A Plan to Make an AI Programmer",
+    "date": "2023-06-02",
+    "slug": "ai-programmer",
+    "summary": "Make an RL environment, design the agent, and go!",
+    "theme": "AI and Cognition"
+  },
+  {
+    "title": "GFW Causes ElectronJS Installation Failure",
+    "date": "2023-06-01",
+    "slug": "npm-i-electron",
+    "summary": "npm install electron will fail if you're unable to access github (or simply forget to use a proxy).",
+    "theme": "Technical Notes"
+  },
+  {
+    "title": "Understanding 'A Thousand Brains', A Personal Review",
+    "date": "2023-05-15",
+    "slug": "Hawkins-Thousand-Brains-book",
+    "summary": "The description of cortical columns is amazing; they serve as the fundamental computational units of our brain.",
+    "theme": "AI and Cognition"
+  },
+  {
+    "title": "A Personal Journey Through Tegmark's Mathematical Universe",
+    "date": "2023-05-07",
+    "slug": "tegmark-mathematical-universe-book",
+    "summary": "I love the concepts of inflation theory, Many Worlds interpretation, decoherence, consensus reality, and many more.",
+    "theme": "Book Reviews"
+  },
+  {
+    "title": "Validate HLSL grammar in command line",
+    "date": "2021-10-11",
+    "slug": "validate-hlsl-grammar-in-command-line",
+    "summary": "HLSL is used in Unity, and one can debug HLSL code in SHADERed. However, SHADERed doesn't show the detailed compile error message as Unity does. Here we show how to use a tool called glslangValidator to validate the HLSL grammar in command line.",
+    "theme": "Technical Notes"
+  },
+  {
+    "title": "Setup Unity ML-Agents",
+    "date": "2021-09-23",
+    "slug": "setup-unity-ml-agents",
+    "summary": "Unity has published ML-Agents 2.x, and here is how to set things up and run the examples.",
+    "theme": "AI and Cognition"
+  },
+  {
+    "title": "A simple Android virtual environment",
+    "date": "2021-07-03",
+    "slug": "simple-android-env",
+    "summary": "Inspired by DeepMind's newly release AndroidEnv.",
+    "theme": "AI and Cognition"
+  },
+  {
+    "title": "How to use PyCUDA to bring significant speedup",
+    "date": "2020-08-02",
+    "slug": "pycuda",
+    "summary": "We can see the CUDA version only takes 6 seconds while the original version would take more than a hour.",
+    "theme": "Technical Notes"
+  },
+  {
+    "title": "Nuance in Monty Hall Paradox",
+    "date": "2018-07-02",
+    "slug": "nuance-in-monty-hall-paradox",
+    "summary": "Hmm, is the \"Marilyn's question\" different from \"Monty Hall Paradox\"?",
+    "theme": "Philosophy and Mathematics"
+  },
+  {
+    "title": "What is Mathematics According to Keith Devlin",
+    "date": "2018-06-27",
+    "slug": "what-is-mathematics",
+    "summary": "In the book Introduction to Mathematical Thinking, he wrote, \"Virtually nothing",
+    "theme": "Philosophy and Mathematics"
+  },
+  {
+    "title": "Dynamic NN Allowing Additional Evidence?",
+    "date": "2018-05-29",
+    "slug": "dynamic-nn",
+    "summary": "",
+    "theme": "Technical Notes"
+  },
+  {
+    "title": "Why does the person with highest IQ not become the most successful one?",
+    "date": "2017-09-27",
+    "slug": "highest-IQ",
+    "summary": "",
+    "theme": "Philosophy and Mathematics"
+  },
+  {
+    "title": "Use Tensorflow to Compute Gradient",
+    "date": "2017-09-24",
+    "slug": "use-tensorflow-to-compute-gradient",
+    "summary": "",
+    "theme": "Technical Notes"
+  },
+  {
+    "title": "Scree of PCA(Principal Component Analysis)",
+    "date": "2017-09-23",
+    "slug": "scree-of-pca",
+    "summary": "",
+    "theme": "Technical Notes"
+  },
+  {
+    "title": "Learning Rate is Too Large",
+    "date": "2017-09-09",
+    "slug": "learning-rate-too-large",
+    "summary": "",
+    "theme": "Technical Notes"
+  },
+  {
+    "title": "Manipulating Tensorboard",
+    "date": "2017-09-08",
+    "slug": "manipulating-tensorboard",
+    "summary": "",
+    "theme": "Technical Notes"
+  },
+  {
+    "title": "Implement a Deep Neural Network using Python and Numpy",
+    "date": "2017-08-24",
+    "slug": "deep-scratch",
+    "summary": "",
+    "theme": "Technical Notes"
+  },
+  {
+    "title": "Cross Entropy 的通俗意义",
+    "date": "2016-11-25",
+    "slug": "cross-entropy",
+    "summary": "",
+    "theme": "Technical Notes"
+  },
+  {
+    "title": "推荐《写下记忆：理解、推导、扩展LSTM》",
+    "date": "2016-11-24",
+    "slug": "deriving-lstm",
+    "summary": "",
+    "theme": "Technical Notes"
+  },
+  {
+    "title": "学习Tensorflow的LSTM的RNN例子",
+    "date": "2016-11-16",
+    "slug": "study-lstm",
+    "summary": "",
+    "theme": "Technical Notes"
+  },
+  {
+    "title": "学习Tensorflow的Embeddings例子",
+    "date": "2016-11-14",
+    "slug": "study-embeddings",
+    "summary": "",
+    "theme": "Technical Notes"
+  },
+  {
+    "title": "如何问一个好问题？",
+    "date": "2016-11-12",
+    "slug": "how-to-ask-a-good-question",
+    "summary": "",
+    "theme": "Technical Notes"
+  },
+  {
+    "title": "Recurrent Neural Network(RNN) Implementation",
+    "date": "2016-11-04",
+    "slug": "rnn-implementation",
+    "summary": "",
+    "theme": "Technical Notes"
+  },
+  {
+    "title": "from Tensorflow to Keras",
+    "date": "2016-10-31",
+    "slug": "translate-from-tf-2-keras",
+    "summary": "",
+    "theme": "Technical Notes"
+  },
+  {
+    "title": "About sparse_column_with_hash_bucket",
+    "date": "2016-10-30",
+    "slug": "hash-bucket",
+    "summary": "",
+    "theme": "Technical Notes"
+  },
+  {
+    "title": "Thank you, GitHub and Jekyll",
+    "date": "2016-10-29",
+    "slug": "thank-you-github-n-jekyll",
+    "summary": "",
+    "theme": "Technical Notes"
+  }
+]

@@ -1,0 +1,70 @@
+[
+  {
+    "title": "ai-experiments",
+    "year": "2026",
+    "description": "A quick prototyping platform for exploring LLM internals — residual streams, attention patterns, and hidden states. Built to run fast experiments and share discoveries.",
+    "url": "https://github.com/liusida/ai-experiments",
+    "tags": ["AI", "LLM", "Python"]
+  },
+  {
+    "title": "ComfyUI Tools",
+    "year": "2024",
+    "description": "A collection of custom nodes and tools for ComfyUI, the node-based Stable Diffusion GUI. Includes a login/auth system, an auto-updating leaderboard of the top 100 ComfyUI repos, a B-LoRA loader for style-content separation, a RetinaFace-based face cropper, and a Jupyter-style Python execution node (the precursor to ai-experiments).",
+    "url": "https://github.com/liusida/ComfyUI-Login",
+    "links": [
+      {"label": "ComfyUI-Notebook", "url": "https://github.com/liusida/ComfyUI-Notebook"},
+      {"label": "top-100-comfyui", "url": "https://github.com/liusida/top-100-comfyui"},
+      {"label": "ComfyUI-B-LoRA", "url": "https://github.com/liusida/ComfyUI-B-LoRA"},
+      {"label": "ComfyUI-AutoCropFaces", "url": "https://github.com/liusida/ComfyUI-AutoCropFaces"}
+    ],
+    "tags": ["ComfyUI", "Stable Diffusion", "Python"]
+  },
+  {
+    "title": "gym-codecraft",
+    "year": "2023",
+    "description": "A gym-like environment with a Docker container sandbox for an RL agent to learn to write code.",
+    "url": "https://github.com/liusida/gym-codecraft",
+    "tags": ["RL", "Docker", "Python"]
+  },
+  {
+    "title": "UE5 MassEntity Demo",
+    "year": "2022",
+    "description": "A tutorial and demo showing how to use the experimental MassEntity system in Unreal Engine 5 to create 1,000 independently moving cubes with high performance.",
+    "url": "https://github.com/liusida/UnrealMassMovementDemo",
+    "links": [
+      {"label": "YouTube demo", "url": "https://www.youtube.com/watch?v=0dwgnH3SoC0"}
+    ],
+    "tags": ["Unreal Engine", "Game Dev"]
+  },
+  {
+    "title": "Voxcraft-sim",
+    "year": "2020",
+    "description": "A voxel-based physics simulation for evolutionary robotics, implemented in CUDA. I rewrote a CPU-only simulator to run on multiple GPUs, enabling much larger experiments in soft-robot evolution.",
+    "url": "https://github.com/voxcraft/voxcraft-sim",
+    "links": [
+      {"label": "Visualizer", "url": "https://github.com/voxcraft/voxcraft-viz"},
+      {"label": "Voxcraft project", "url": "https://voxcraft.github.io/"}
+    ],
+    "tags": ["CUDA", "Robotics", "Simulation"]
+  },
+  {
+    "title": "Xenobots",
+    "year": "2020",
+    "description": "Living robots designed by computers, realized using frog cells in petri dishes. I was responsible for improving the computational simulation for the automated design of these biological machines.",
+    "url": "https://cdorgs.github.io/",
+    "links": [
+      {"label": "Wikipedia", "url": "https://en.wikipedia.org/wiki/Xenobot"}
+    ],
+    "tags": ["Biorobotics", "Simulation", "AI"]
+  },
+  {
+    "title": "Hinton's Course Demos",
+    "year": "2017",
+    "description": "Interactive demos I built while taking Geoffrey Hinton's 'Neural Networks for Machine Learning' course. Plus a PyCUDA implementation of Jack's Car Rental from Sutton's RL book.",
+    "url": "https://github.com/liusida/geoffrey-hinton-course-demos",
+    "links": [
+      {"label": "Jack's Car Rental (PyCUDA)", "url": "https://github.com/liusida/JacksCarRental-via-PyCUDA"}
+    ],
+    "tags": ["Neural Networks", "CUDA"]
+  }
+]

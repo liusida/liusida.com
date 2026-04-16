@@ -1,0 +1,11 @@
+In the beginning, human beings tried to make sense of the world around them. They observed, guessed, discussed, and formed explanations for the things they didn't understand--like the stars, the weather, life, and death. These early efforts became what we now call religions. They weren't just belief systems; they were thoughtful attempts to understand the unknown.
+
+Over time, these explanations became fixed. Flexible ideas turned into strict systems. This often happened because people wanted to share them more easily, reduce the effort needed to learn, or create unity across communities. In many cases, religious systems were used to unify populations, support social structures, and advance the interests of those in power.
+
+But humanity doesn't move in a straight line--we return to the same big questions again and again, each time with new tools. Today, we call this search "science." We still try to explain the unknown, just as our ancestors did, but now we use slightly different methods and languages.
+
+And just like religious practices, doing science can be calming and comforting. It offers a path out of daily routines, a sense of higher purpose, and a framework for understanding our place in the world.
+
+Science today still mostly follows the spirit of exploration--but certain patterns feel familiar. Just as in religions, where a very small number of seekers continue to pursue deeper understanding while most follow established teachings, science now shows a similar trend. A few continue the work of discovery, while many accept scientific claims as settled truth. With AI becoming a powerful tool in sharing knowledge, this dynamic may deepen further. The process of exploration continues, but fewer people may engage with it directly. Science, like religions before it, may gradually shift from something people actively question and engage with to something more often trusted and repeated.
+
+In this way, science and religions follow a similar pattern. The resemblance is not exact, but the rhythm might feel familiar.
