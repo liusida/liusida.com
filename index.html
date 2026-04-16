@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="favicon.ico">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -15,9 +16,13 @@
     <!-- Hero -->
     <canvas id="hero-canvas" aria-hidden="true"></canvas>
     <section class="hero reveal">
-        <img src="images/photo.png" alt="Sida Liu" class="avatar">
-        <h1>Sida Liu</h1>
-        <p class="subtitle">A learner in the complex world</p>
+        <div class="hero-intro">
+            <img src="images/photo.png" alt="Sida Liu" class="avatar">
+            <div>
+                <h1>Sida Liu</h1>
+                <p class="subtitle">A learner in the complex world</p>
+            </div>
+        </div>
         <p class="now">
             Doing exploratory research on the internals of large language models — observing
             the residual stream, attention patterns, and other hidden states to understand
@@ -28,24 +33,24 @@
     <main>
         <div class="nav-cards reveal">
             <a href="writing.html" class="nav-card">
+                <svg class="nav-card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
                 <span class="nav-card-label">Writing</span>
                 <span class="nav-card-desc">Thoughts on AI, cognition, philosophy, mathematics, and more</span>
-                <span class="nav-card-arrow">&rarr;</span>
-            </a>
-            <a href="bookshelf.html" class="nav-card">
-                <span class="nav-card-label">Bookshelf</span>
-                <span class="nav-card-desc">Books I've read, with notes and reviews</span>
-                <span class="nav-card-arrow">&rarr;</span>
             </a>
             <a href="projects.html" class="nav-card">
+                <svg class="nav-card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
                 <span class="nav-card-label">Projects</span>
                 <span class="nav-card-desc">Simulations, tools, and experiments I've built</span>
-                <span class="nav-card-arrow">&rarr;</span>
             </a>
             <a href="journey.html" class="nav-card">
+                <svg class="nav-card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
                 <span class="nav-card-label">Journey</span>
                 <span class="nav-card-desc">From management to e-commerce to AI research — the path so far</span>
-                <span class="nav-card-arrow">&rarr;</span>
+            </a>
+            <a href="bookshelf.html" class="nav-card">
+                <svg class="nav-card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                <span class="nav-card-label">Bookshelf</span>
+                <span class="nav-card-desc">Books I've read, with notes and reviews</span>
             </a>
         </div>
     </main>
