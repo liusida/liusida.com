@@ -3,6 +3,5 @@
 historical_data/wechat/exported_data
 historical_data/github.io
 historical_data/qzone/cookie.txt
-historical_data/qzone/all_posts_clean.json
 migrate.py
 accountfull.js
