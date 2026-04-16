@@ -53,19 +53,6 @@
     --book-hover-bg: #fff;
 }
 
-@media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) {
-        --bg: #111110;
-        --text: #e5e5e3;
-        --text-muted: #8a8a88;
-        --accent: #e08b73;
-        --border: #2a2928;
-        --surface: #1c1b1a;
-        --card-bg: #1c1b1a;
-        --book-hover-bg: #222;
-    }
-}
-
 :root[data-theme="dark"] {
     --bg: #111110;
     --text: #e5e5e3;
