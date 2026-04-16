@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>朋友圈 · 长文</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--t1);line-height:1.65;-webkit-font-smoothing:antialiased}
+:root{--bg:#F0EEE9;--card:rgba(255,255,255,.92);--t1:#3d3d3d;--t2:#666;--t3:#999;--accent:#8B7355;--border:rgba(0,0,0,.08)}
+@media(prefers-color-scheme:dark){:root{--bg:#1a1a1a;--card:rgba(40,40,40,.85);--t1:#e0e0e0;--t2:#aaa;--t3:#777;--accent:#c4a882;--border:rgba(255,255,255,.1)}}
+.wrap{max-width:42rem;margin:0 auto;padding:1.5rem 1.25rem 4rem}
+header{margin-bottom:1.75rem;padding-bottom:1rem;border-bottom:1px solid var(--border)}
+h1{font-size:1.35rem;font-weight:700;color:var(--accent);letter-spacing:-0.02em}
+.sub{font-size:.8rem;color:var(--t3);margin-top:.35rem}
+.lp-article{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.25rem 1.35rem;margin-bottom:1.15rem;box-shadow:0 2px 10px rgba(0,0,0,.04)}
+.lp-time{font-size:.72rem;color:var(--t3);margin-bottom:.75rem;font-variant-numeric:tabular-nums}
+.lp-text{font-size:.95rem;color:var(--t1);white-space:pre-wrap;word-break:break-word}
+.err{color:var(--t2);font-size:.9rem;padding:1rem;background:rgba(0,0,0,.04);border-radius:12px}
+.err code{font-size:.75rem;opacity:.9}
+.btt{position:fixed;right:1rem;bottom:1.25rem;width:44px;height:44px;border-radius:50%;background:var(--card);border:1px solid var(--border);cursor:pointer;font-size:1.1rem;display:none;align-items:center;justify-content:center;z-index:50;color:var(--accent);box-shadow:0 4px 14px rgba(0,0,0,.08)}
+.btt.show{display:flex}
+.btt:hover{transform:scale(1.06)}
+.ft{margin-top:2.5rem;padding-top:1rem;font-size:.75rem;color:var(--t3);border-top:1px solid var(--border);text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>长文摘录</h1>
+    <p class="sub" id="lp-sub">从较长的朋友圈正文中筛选 · 加载中…</p>
+  </header>
+  <main id="lp-main"></main>
+  <p class="ft">数据来自 moments-long.json（由 extract_long_posts.py 生成）</p>
+</div>
+<button type="button" class="btt" id="btt" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="回到顶部">↑</button>
+<script>
+(function () {
+  function esc(s) {
+    if (s == null) return '';
+    return String(s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+  function nl2br(s) {
+    return esc(s).replace(/\n/g, '<br>');
+  }
+  var main = document.getElementById('lp-main');
+  var sub = document.getElementById('lp-sub');
+  fetch('moments-long.json')
+    .then(function (r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    })
+    .then(function (data) {
+      var meta = data.meta || {};
+      var posts = data.posts || [];
+      var bits = [posts.length + ' 篇 · 原筛选：' + (meta.criteria || '—')];
+      if (meta.sort) bits.push(meta.sort);
+      if (meta.owner_nick) bits.push(meta.owner_nick);
+      sub.textContent = bits.join(' · ');
+      if (!posts.length) {
+        main.innerHTML = '<p class="err">没有条目。</p>';
+        return;
+      }
+      var html = posts.map(function (p, i) {
+        return (
+          '<article class="lp-article" id="p' +
+          i +
+          '"><div class="lp-time">' +
+          esc(p.t || '') +
+          '</div><div class="lp-text">' +
+          nl2br(p.c || '') +
+          '</div></article>'
+        );
+      });
+      main.innerHTML = html.join('');
+      // Deep link ?i=N must run after articles exist (fetch is async; window "load" fires too early).
+      var q = new URLSearchParams(window.location.search).get('i');
+      if (q !== null) {
+        var n = parseInt(q, 10);
+        if (!isNaN(n) && n >= 0 && n < posts.length) {
+          requestAnimationFrame(function () {
+            var el = document.getElementById('p' + n);
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          });
+        }
+      }
+    })
+    .catch(function (e) {
+      sub.textContent = '加载失败';
+      main.innerHTML =
+        '<p class="err">需要本地 HTTP 服务才能读取 JSON。例如：<code>python3 -m http.server 8765</code>，再打开 <code>http://127.0.0.1:8765/long-posts.html</code><br><small>' +
+        esc(e.message) +
+        '</small></p>';
+    });
+  window.addEventListener('scroll', function () {
+    document.getElementById('btt').classList.toggle('show', window.scrollY > 400);
+  });
+})();
+</script>
+</body>
+</html>
