@@ -30,8 +30,10 @@
             </header>
             <div id="post-content"></div>
         </article>
+        <section class="comments-panel" aria-label="Comments">
+            <div id="remark42"></div>
+        </section>
     </main>
-
     <footer class="footer">
         <div class="social-links">
             <a href="https://github.com/liusida" aria-label="GitHub">
@@ -87,5 +89,13 @@
         }
     })();
     </script>
+    <script>
+      var remark_config = {
+        host: "https://remark.liusida.com",
+        site_id: "liusida.com",
+        url: "https://liusida.com/post.html?slug=" + encodeURIComponent(new URLSearchParams(window.location.search).get('slug') || '')
+      };
+    </script>
+    <script src="https://remark.liusida.com/web/embed.js"></script>    
 </body>
 </html>
