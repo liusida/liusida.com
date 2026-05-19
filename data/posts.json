@@ -1,5 +1,12 @@
 [
   {
+    "title": "Inspecting LLM Internals with Public SAE Models and Neuronpedia Annotations",
+    "date": "2026-05-19",
+    "slug": "inspecting-llm-internals-with-public-sae-models-and-neuronpedia-annotations",
+    "summary": "A local prompt explorer for inspecting LLM residual-stream activations with public SAE models and Neuronpedia feature annotations.",
+    "theme": "AI and Cognition"
+  },
+  {
     "title": "LLMs Are Becoming More Similar—to Each Other and to Us",
     "date": "2026-01-15",
     "slug": "llms-are-becoming-more-similar-to-each-other-and-to-us",

@@ -933,6 +933,14 @@ main h2 {
     margin: 1rem 0;
 }
 
+.post .post-wide-image {
+    display: block;
+    width: min(1040px, calc(100vw - 3rem));
+    max-width: none;
+    margin: 1.5rem 0 1.5rem 50%;
+    transform: translateX(-50%);
+}
+
 .post table {
     display: block;
     overflow-x: auto;
