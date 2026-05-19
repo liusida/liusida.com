@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redirecting - Sida Liu</title>
+</head>
+<body>
+    <script>
+    (function() {
+        var match = window.location.pathname.match(/^\/post\/([^\/]+)\/?$/);
+        if (match) {
+            window.location.replace('/post.html?slug=' + encodeURIComponent(decodeURIComponent(match[1])));
+            return;
+        }
+
+        document.body.textContent = 'Page not found.';
+    })();
+    </script>
+</body>
+</html>

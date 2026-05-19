@@ -48,7 +48,7 @@ function toggleOrder(btn) {
             posts.forEach(function (p) {
                 var card = document.createElement('a');
                 card.className = 'post-card';
-                card.href = 'post.html?slug=' + encodeURIComponent(p.slug);
+                card.href = '/post/' + encodeURIComponent(p.slug);
                 card.setAttribute('data-theme', p.theme);
 
                 var row = document.createElement('div');

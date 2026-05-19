@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Sida Liu</title>
-    <link rel="icon" href="favicon.ico">
-    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="/favicon.ico">
+    <link rel="stylesheet" href="/style.css">
     <script>var t=localStorage.getItem('theme');if(t)document.documentElement.setAttribute('data-theme',t);</script>
-    <script src="lib/marked.min.js"></script>
+    <script src="/lib/marked.min.js"></script>
     <script async defer data-website-id="b9e7a81c-fb4b-4238-96f6-2bdcb80dde85" data-auto-track="false" src="https://analytics.liusida.com/umami/script.js"></script>
 </head>
 <body>
@@ -15,10 +15,10 @@
     <nav class="site-nav">
         <a href="/" class="site-nav-home">Sida Liu</a>
         <div class="site-nav-links">
-            <a href="writing.html">Writing</a>
-            <a href="projects.html">Projects</a>
-            <a href="journey.html">Journey</a>
-            <a href="bookshelf.html">Bookshelf</a>
+            <a href="/writing.html">Writing</a>
+            <a href="/projects.html">Projects</a>
+            <a href="/journey.html">Journey</a>
+            <a href="/bookshelf.html">Bookshelf</a>
         </div>
     </nav>
 
@@ -43,13 +43,22 @@
                 <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
             </a>
             <a href="https://xhslink.com/m/9s7XWUIVsQs" aria-label="Xiaohongshu">
-                <img src="images/xhs-logo.png" alt="小红书" class="xhs-icon">
+                <img src="/images/xhs-logo.png" alt="小红书" class="xhs-icon">
             </a>
         </div>
         <p class="footer-note">You can pronounce my name as <em>Star</em>, since that's what it sounds in Mandarin Chinese.</p>
     </footer>
 
     <script>
+    function getPostSlug() {
+        var params = new URLSearchParams(window.location.search);
+        var slug = params.get('slug');
+        if (slug) return slug;
+
+        var match = window.location.pathname.match(/^\/post\/([^\/]+)\/?$/);
+        return match ? decodeURIComponent(match[1]) : '';
+    }
+
     function trackPostView(slug, meta) {
         var title = meta && meta.title ? meta.title : slug;
         var path = '/post/' + encodeURIComponent(slug);
@@ -80,17 +89,21 @@
     }
 
     (async function() {
-        var params = new URLSearchParams(window.location.search);
-        var slug = params.get('slug');
+        var slug = getPostSlug();
         if (!slug) {
             document.getElementById('post-content').textContent = 'No post specified.';
             return;
         }
 
+        var cleanPath = '/post/' + encodeURIComponent(slug);
+        if (window.location.pathname !== cleanPath) {
+            window.history.replaceState(null, '', cleanPath);
+        }
+
         try {
             var results = await Promise.all([
-                fetch('data/posts.json'),
-                fetch('posts/' + slug + '.md')
+                fetch('/data/posts.json'),
+                fetch('/posts/' + slug + '.md')
             ]);
             var metaRes = results[0];
             var mdRes = results[1];
@@ -123,7 +136,7 @@
       var remark_config = {
         host: "https://remark.liusida.com",
         site_id: "liusida.com",
-        url: "https://liusida.com/post.html?slug=" + encodeURIComponent(new URLSearchParams(window.location.search).get('slug') || '')
+        url: "https://liusida.com/post/" + encodeURIComponent(getPostSlug())
       };
     </script>
     <script src="https://remark.liusida.com/web/embed.js"></script>    
