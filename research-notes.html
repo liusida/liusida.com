@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Bookshelf — Sida Liu</title>
+    <title>Research Notes — Sida Liu</title>
     <link rel="icon" href="favicon.ico">
     <link rel="stylesheet" href="style.css">
     <script>var t=localStorage.getItem('theme');if(t)document.documentElement.setAttribute('data-theme',t);</script>
@@ -14,26 +14,32 @@
     <nav class="site-nav">
         <a href="/" class="site-nav-home">Sida Liu</a>
         <div class="site-nav-links">
-            <a href="research-notes.html">Research Notes</a>
+            <a href="research-notes.html" class="active">Research Notes</a>
             <a href="writing.html">Writing</a>
             <a href="projects.html">Projects</a>
             <a href="journey.html">Journey</a>
-            <a href="bookshelf.html" class="active">Bookshelf</a>
+            <a href="bookshelf.html">Bookshelf</a>
         </div>
     </nav>
 
     <main>
-        <section class="bookshelf-page reveal">
+        <article class="research-notes-page reveal">
             <div class="page-header">
-                <h2>Bookshelf</h2>
-                <button class="order-toggle" data-order="newest" onclick="toggleOrder(this)">Newest first ↓</button>
+                <h2>Research Notes</h2>
             </div>
-            <p class="theme-narrative">What I read strongly influences how I think and who I am.</p>
-            <div id="bookshelf-container"></div>
-        </section>
-        <section class="comments-panel" aria-label="Comments">
-            <div id="remark42"></div>
-        </section>
+
+            <div class="research-note-list">
+                <a class="research-note-card" href="research-notes/norm_act_geometry/">
+                    <span class="research-note-date">Jun 9, 2026</span>
+                    <span class="research-note-title">L2-Normalized Activation Geometry</span>
+                    <span class="research-note-desc">
+                        Inspecting Gemma 2 layer-12 activation space with L2 normalization,
+                        cosine-threshold connected components, and context-level component
+                        interpretation.
+                    </span>
+                </a>
+            </div>
+        </article>
     </main>
 
     <footer class="footer">
@@ -52,13 +58,5 @@
     </footer>
 
     <script src="script.js"></script>
-    <script>
-      var remark_config = {
-        host: "https://remark.liusida.com",
-        site_id: "liusida.com",
-        url: "https://liusida.com/bookshelf.html"
-      };
-    </script>
-    <script src="https://remark.liusida.com/web/embed.js"></script>
 </body>
 </html>

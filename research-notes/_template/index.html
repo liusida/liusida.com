@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Research Note Title — Sida Liu</title>
+    <link rel="icon" href="/favicon.ico">
+    <link rel="stylesheet" href="/style.css">
+    <script>var t=localStorage.getItem('theme');if(t)document.documentElement.setAttribute('data-theme',t);</script>
+    <script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']],
+          displayMath: [['$$', '$$'], ['\\[', '\\]']]
+        },
+        svg: { fontCache: 'global' }
+      };
+    </script>
+    <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+    <script async defer data-website-id="b9e7a81c-fb4b-4238-96f6-2bdcb80dde85" src="https://analytics.liusida.com/umami/script.js"></script>
+    <style>
+      .post .citation {
+        white-space: nowrap;
+      }
+      .citation-tooltip {
+        position: fixed;
+        z-index: 10000;
+        width: max-content;
+        max-width: min(360px, calc(100vw - 32px));
+        padding: 8px 10px;
+        border: 1px solid var(--line, #d9d6cc);
+        border-radius: 6px;
+        background-color: #fff;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14);
+        color: var(--text, #1d1b16);
+        font-size: 0.86rem;
+        font-weight: 400;
+        line-height: 1.35;
+        text-align: left;
+        text-decoration: none;
+        text-shadow: none;
+        white-space: normal;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 120ms ease;
+      }
+      .citation-tooltip.visible {
+        opacity: 1;
+      }
+    </style>
+</head>
+<body>
+
+    <nav class="site-nav">
+        <a href="/" class="site-nav-home">Sida Liu</a>
+        <div class="site-nav-links">
+            <a href="/research-notes.html" class="active">Research Notes</a>
+            <a href="/writing.html">Writing</a>
+            <a href="/projects.html">Projects</a>
+            <a href="/journey.html">Journey</a>
+            <a href="/bookshelf.html">Bookshelf</a>
+        </div>
+    </nav>
+
+    <main>
+        <article class="post research-note">
+            <header class="post-header">
+                <h1>Research Note Title</h1>
+                <time>Month Day, Year</time>
+            </header>
+
+            <p>
+                Start the note here. This template is plain HTML, so plots, tables,
+                custom sections, and small scripts can live directly inside the note.
+                Citation previews use links like
+                <a href="#ref-1" class="citation" data-citation="Replace with a paper, post, or dataset reference.">[1]</a>.
+            </p>
+
+            <h2>Question</h2>
+            <p>
+                Replace this with the research question, setup, result, or partial finding.
+                Inline math works like $h_\ell = x_\ell + a_\ell$, and display equations
+                can be written with MathJax. Number only equations you plan to refer to,
+                such as <a href="#eq-residual-update">Eq. 1</a>:
+            </p>
+
+            <div class="equation equation-numbered" id="eq-residual-update">
+                $$
+                x_{\ell+1} = x_\ell + \operatorname{Attn}_\ell(x_\ell) + \operatorname{MLP}_\ell(x_\ell)
+                $$
+                <span class="equation-label">(1)</span>
+            </div>
+
+            <p>
+                For display math that does not need a reference, omit the ID and label:
+            </p>
+
+            <div class="equation">
+                $$
+                \operatorname{LayerNorm}(x) = \gamma \odot \frac{x - \mu}{\sigma} + \beta
+                $$
+            </div>
+
+            <h2>Setup</h2>
+            <ul class="setup-list">
+                <li>Model: <code>model/name</code></li>
+                <li>Layer: <code>layer_12</code></li>
+                <li>Dataset: <code>dataset/name</code> split <code>train</code></li>
+                <li>Metric or threshold: 0.7</li>
+            </ul>
+
+            <h2>Method</h2>
+            <p>
+                Describe the model, prompts, layers, hooks, metrics, or data-processing steps.
+                Keep generated artifacts local to this folder so the note remains self-contained.
+            </p>
+
+            <h2>Compact Result Summary</h2>
+            <p class="stat-line">
+                Keep supporting counts in prose unless they are the main result. For example,
+                the run produced <strong>136,410</strong> components, with
+                <strong>19,916</strong> non-singleton components.
+            </p>
+            <p class="component-size-list">
+                Top component sizes:
+                <code>826000, 276, 259, 210, 187, 185, 110, 107</code>
+            </p>
+            <p>
+                Use provisional labels when interpreting inspected examples:
+                <span class="provisional-label">possible formatting component</span>.
+            </p>
+
+            <h2>Plot</h2>
+            <p>
+                Refer to figures with deep links like
+                <a href="#fig-example">Figure 1</a>.
+            </p>
+            <figure id="fig-example">
+                <img src="plots/example.png" alt="Example plot">
+                <figcaption>
+                    <span class="figure-label">Figure 1.</span> Replace with a local plot
+                    stored in this note's plots folder.
+                </figcaption>
+            </figure>
+
+            <h2>Table</h2>
+            <p>
+                Refer to tables with deep links like
+                <a href="#table-example">Table 1</a>.
+            </p>
+            <table id="table-example">
+                <caption>
+                    <span class="table-label">Table 1.</span> Replace with a compact table
+                    that fits comfortably in the main text column.
+                </caption>
+                <thead>
+                    <tr>
+                        <th>Layer</th>
+                        <th>Metric</th>
+                        <th>Observation</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>12</td>
+                        <td>0.00</td>
+                        <td>Replace with a real result.</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2>Wide Blocks</h2>
+            <figure id="fig-wide-example">
+                <img class="post-wide-image" src="plots/wide-example.png" alt="Optional wide example plot">
+                <figcaption>
+                    <span class="figure-label">Figure 2.</span> Most plots should stay in
+                    the normal text column. Use a wide image only when a dense figure
+                    benefits from extra horizontal space.
+                </figcaption>
+            </figure>
+
+            <div class="post-wide">
+                <table id="table-wide-example">
+                    <thead>
+                        <tr>
+                            <th>Component</th>
+                            <th>Size</th>
+                            <th>Top tokens</th>
+                            <th>Unique docs</th>
+                            <th>Example context</th>
+                            <th>Interpretation</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Rank 2</td>
+                            <td>276</td>
+                            <td><code>:</code></td>
+                            <td>276</td>
+                            <td><code>&lt;bos&gt;Q:</code></td>
+                            <td>Replace with a wide table, card grid, or other dense artifact.</td>
+                        </tr>
+                        <tr>
+                            <td>Rank 3</td>
+                            <td>259</td>
+                            <td><code>\n</code></td>
+                            <td>259</td>
+                            <td><code>&lt;bos&gt;Q:\n</code></td>
+                            <td>Use a wide wrapper when the normal text column is too narrow.</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p class="table-caption">
+                    <span class="table-label">Table 2.</span> Wide tables can use
+                    the post-wide wrapper and still be referenced
+                    with links like <a href="#table-wide-example">Table 2</a>.
+                </p>
+            </div>
+
+            <h2>Notes</h2>
+            <ul>
+                <li>Use the plots folder for PNG, SVG, or PDF figures.</li>
+                <li>Use scripts/plot_example.py as the starting point for
+                    plot-generation style: serif font, small labels, light grid, and 300 DPI.</li>
+                <li>Use inline code styling for code-like identifiers, not for every
+                    number or threshold in prose.</li>
+                <li>Prefer normal-width blocks. Use wide blocks sparingly, only when a figure,
+                    table, grid, or component card genuinely needs more horizontal space.</li>
+                <li>When labels are interpretive guesses, mark them as provisional rather than
+                    final names.</li>
+                <li>Avoid keeping CSV or JSON files in the website unless the page needs them
+                    to render or reproduce a small result.</li>
+                <li>Use relative paths such as plots/activation_histogram.png.</li>
+            </ul>
+
+            <h2>References</h2>
+            <ol>
+                <li id="ref-1">
+                    Replace with a paper, post, or dataset reference.
+                    <a href="https://arxiv.org/" target="_blank" rel="noopener">arXiv</a>.
+                </li>
+            </ol>
+        </article>
+
+        <section class="comments-panel" aria-label="Comments">
+            <div id="remark42"></div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="social-links">
+            <a href="https://github.com/liusida" aria-label="GitHub">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+            </a>
+            <a href="https://x.com/liusida2007" aria-label="X / Twitter">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+            </a>
+            <a href="https://xhslink.com/m/9s7XWUIVsQs" aria-label="Xiaohongshu">
+                <img src="/images/xhs-logo.png" alt="Xiaohongshu" class="xhs-icon">
+            </a>
+        </div>
+        <p class="footer-note">You can pronounce my name as <em>Star</em>, since that's what it sounds in Mandarin Chinese.</p>
+    </footer>
+
+    <script src="/script.js"></script>
+    <script>
+      var remark_config = {
+        host: "https://remark.liusida.com",
+        site_id: "liusida.com",
+        url: "https://liusida.com" + window.location.pathname.replace(/\/?index\.html$/, "/")
+      };
+    </script>
+    <script src="https://remark.liusida.com/web/embed.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var citations = document.querySelectorAll('.citation[data-citation]');
+        if (!citations.length) return;
+
+        var tooltip = document.createElement('div');
+        tooltip.className = 'citation-tooltip';
+        tooltip.setAttribute('role', 'tooltip');
+        document.body.appendChild(tooltip);
+
+        function positionTooltip(anchor) {
+            var rect = anchor.getBoundingClientRect();
+            var tipRect = tooltip.getBoundingClientRect();
+            var margin = 12;
+            var left = rect.left + rect.width / 2 - tipRect.width / 2;
+            var top = rect.top - tipRect.height - 8;
+
+            left = Math.max(margin, Math.min(left, window.innerWidth - tipRect.width - margin));
+            if (top < margin) top = rect.bottom + 8;
+
+            tooltip.style.left = left + 'px';
+            tooltip.style.top = top + 'px';
+        }
+
+        function showTooltip(event) {
+            tooltip.textContent = event.currentTarget.getAttribute('data-citation');
+            tooltip.classList.add('visible');
+            positionTooltip(event.currentTarget);
+        }
+
+        function hideTooltip() {
+            tooltip.classList.remove('visible');
+        }
+
+        citations.forEach(function (citation) {
+            citation.addEventListener('mouseenter', showTooltip);
+            citation.addEventListener('focus', showTooltip);
+            citation.addEventListener('mouseleave', hideTooltip);
+            citation.addEventListener('blur', hideTooltip);
+        });
+
+        window.addEventListener('scroll', hideTooltip, { passive: true });
+        window.addEventListener('resize', hideTooltip);
+    });
+    </script>
+</body>
+</html>
