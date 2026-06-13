@@ -263,8 +263,12 @@
             <p class="lede">
                 High-dimensional activation spaces are hard to picture directly. Here we make
                 Gemma 2 <a href="#ref-2" class="citation" data-citation="Gemma Team. Gemma 2: Improving Open Language Models at a Practical Size. arXiv:2408.00118.">[2]</a> layer-12 residual
-                activations easier to think about by discarding magnitude and studying
-                their directions. This is motivated by RMSNorm
+                activations easier to inspect by discarding magnitude and comparing
+                directions.
+            </p>
+
+            <p>
+                This choice is motivated by RMSNorm
                 <a href="#ref-1" class="citation" data-citation="Biao Zhang and Rico Sennrich. Root Mean Square Layer Normalization. arXiv:1910.07467.">[1]</a>:
                 downstream submodules, including attention and MLP blocks, see residual-stream
                 activations after normalization. RMSNorm is not identical to L2 normalization,
@@ -287,13 +291,18 @@
             </div>
 
 <p>
-    We therefore L2-normalize every activation vector. After this transformation,
-    all points lie on the unit hypersphere, so distances become angular: two
-    activations are close when their cosine similarity is high.
+    L2 normalization should therefore be read as a geometric approximation to the
+    normalized residual stream, not as a claim that activation magnitude is never
+    meaningful. The same normalized-activation viewpoint appears in ICA Lens
+    <a href="#ref-5" class="citation" data-citation="Sida Liu and Feijiang Han. ICA Lens: Interpreting Language Models Without Training Another Dictionary. arXiv:2606.11722.">[5]</a>,
+    where FastICA is applied after factoring out activation magnitude.
 </p>
 
 <p>
-    To inspect this angular geometry, we build a graph with one node per activation
+    With this approximation, we L2-normalize every activation vector. After this transformation,
+    all points lie on the unit hypersphere, so distances become angular: two
+    activations are close when their cosine similarity is high. To inspect this
+    angular geometry, we build a graph with one node per activation
     and an edge whenever two normalized activations have cosine similarity at least
     0.7. The resulting component size spectrum is shown in
     <a href="#fig-component-size-spectrum">Figure 1</a>. The largest connected
@@ -1985,6 +1994,10 @@ import javax.</p>
                 <li id="ref-4">
                     Neel Nanda. NeelNanda/pile-10k.
                     <a href="https://huggingface.co/datasets/NeelNanda/pile-10k" target="_blank" rel="noopener">Hugging Face dataset</a>.
+                </li>
+                <li id="ref-5">
+                    Sida Liu and Feijiang Han. ICA Lens: Interpreting Language Models Without Training Another Dictionary.
+                    <a href="https://arxiv.org/abs/2606.11722" target="_blank" rel="noopener">arXiv:2606.11722</a>.
                 </li>
             </ol>
         </article>
