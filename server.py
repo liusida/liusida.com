@@ -9,6 +9,6 @@ class Handler(SimpleHTTPRequestHandler):
 
 
 if __name__ == "__main__":
-    server = ThreadingHTTPServer(("localhost", 8000), Handler)
-    print("Serving at http://localhost:8000")
+    server = ThreadingHTTPServer(("localhost", 8888), Handler)
+    print("Serving at http://localhost:8888")
     server.serve_forever()
