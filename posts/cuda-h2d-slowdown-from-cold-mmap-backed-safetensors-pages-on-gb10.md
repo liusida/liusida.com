@@ -1,15 +1,30 @@
 ## TL;DR
 
-On GB10, if model loading is unexpectedly slow, avoid chaining safetensors slice materialization and CUDA transfer in one expression:
+On GB10, if loading a safetensors-backed model is unexpectedly slow, avoid loading or slicing directly onto CUDA.
+
+For Transformers, avoid:
 
 ```python
-x = safe_slice[...].to("cuda")
+model = AutoModelForCausalLM.from_pretrained(..., device_map="cuda")
 ```
 
-Prefer splitting it into two steps:
+Prefer loading on CPU first, then moving the model to CUDA:
 
 ```python
-x = safe_slice[...]
+model = AutoModelForCausalLM.from_pretrained(..., device_map="cpu")
+model = model.to("cuda")
+```
+
+For direct safetensors usage, avoid:
+
+```python
+x = handle.get_slice(key)[...].to("cuda")
+```
+
+Prefer splitting materialization and CUDA transfer into two steps:
+
+```python
+x = handle.get_slice(key)[...]
 x = x.to("cuda")
 ```
 
@@ -17,9 +32,15 @@ x = x.to("cuda")
 
 GB10 is NVIDIA's Grace Blackwell chip used in small desktop AI systems such as NVIDIA DGX Spark and partner variants including ASUS Ascent GX10, Dell Pro Max with GB10, and HP ZGX Nano. These machines are attractive for local model loading and inference because they provide a large unified memory space in a compact box.
 
-In that setting, loading model weights from `safetensors.safe_open(..., framework="pt", device="cpu")` and then copying them to CUDA can be unexpectedly slow.
+In that setting, loading model weights from safetensors files and moving them to CUDA can be unexpectedly slow.
 
-The slowdown is visible even when bypassing PyTorch high-level APIs:
+Many users will first see this through Transformers model loading. Under the hood, Transformers may load weights from safetensors files, and some loading paths can combine safetensors-backed tensor materialization with CUDA transfer. In direct safetensors usage, the same pattern appears more explicitly:
+
+```python
+x = handle.get_slice(key)[...].to("cuda")
+```
+
+The slowdown is visible even when bypassing high-level PyTorch and Transformers APIs:
 
 ```c
 cudaMemcpy(dst_gpu, src_cpu, 134217728, cudaMemcpyHostToDevice);
@@ -29,42 +50,39 @@ where `src_cpu` is `tensor.data_ptr()` from a safetensors/PyTorch mmap-backed CP
 
 For a 128 MiB tensor, the slow path can take around `1.2s`, while the normal path is around `0.007-0.02s`.
 
-## Cause
+## Practical Workarounds
 
-The issue is not caused by:
+### Transformers
 
-- `Tensor.to("cuda")`
-- `Tensor.copy_`
-- TensorIterator
-- bf16 conversion
-- Transformers
-- safetensors parsing
+For local GB10 use, avoid loading directly to CUDA:
 
-The evidence points to CUDA runtime/driver behavior when doing Host-to-Device copy from **cold file-backed mmap pages**.
-
-On GB10, `cudaMemcpyHostToDevice` can take a very slow path if CUDA is the first component to fault/touch those mmap-backed pages. If the CPU touches the pages first, the same `cudaMemcpy` becomes fast.
-
-In short:
-
-```text
-cold mmap-backed CPU pages -> cudaMemcpy H2D: slow
-CPU-touched mmap pages     -> cudaMemcpy H2D: fast
+```python
+model = AutoModelForCausalLM.from_pretrained(..., device_map="cuda")
 ```
 
-## Practical Solution
+Prefer loading the model on CPU first, then moving it to CUDA:
 
-For normal Python use with `safetensors.safe_open`, avoid chaining the slice materialization and CUDA copy in one expression.
+```python
+model = AutoModelForCausalLM.from_pretrained(..., device_map="cpu")
+model = model.to("cuda")
+```
+
+This separates model weight materialization from the CUDA transfer path. It is the Transformers-level version of the two-line safetensors workaround below.
+
+### Direct safetensors
+
+For normal Python use with `safetensors.safe_open`, avoid chaining slice materialization and CUDA copy in one expression.
 
 Avoid:
 
 ```python
-x_cuda = safe_slice[...].to("cuda")
+x_cuda = handle.get_slice(key)[...].to("cuda")
 ```
 
 Prefer:
 
 ```python
-x = safe_slice[...]
+x = handle.get_slice(key)[...]
 x_cuda = x.to("cuda")
 ```
 
@@ -78,7 +96,7 @@ two-line touch then to           avg=0.0317s min=0.0198s max=0.0491s
 
 So for the common safetensors/Python path, the two-line pattern is the simplest effective workaround.
 
-## Lower-Level Workaround
+### Lower-level CUDA
 
 For raw CUDA copies from mmap-backed CPU memory, or for cases where the two-line Python pattern is not enough, touch one byte per page on CPU before H2D:
 
@@ -99,6 +117,28 @@ mmap-backed tensor -> normal anonymous CPU buffer -> CUDA
 ```
 
 This adds a CPU memcpy, but can still be much faster than letting CUDA copy directly from cold mmap-backed pages.
+
+## Cause
+
+The evidence does not point to these as the root cause:
+
+- `Tensor.to("cuda")`
+- `Tensor.copy_`
+- TensorIterator
+- bf16 conversion
+- Transformers itself
+- safetensors parsing
+
+Transformers can expose the issue because it sits on top of safetensors/PyTorch loading paths. The lower-level evidence points instead to CUDA runtime/driver behavior when doing Host-to-Device copy from **cold file-backed mmap pages**.
+
+On GB10, `cudaMemcpyHostToDevice` can take a very slow path if CUDA is the first component to fault/touch those mmap-backed pages. If the CPU touches the pages first, the same `cudaMemcpy` becomes fast.
+
+In short:
+
+```text
+cold mmap-backed CPU pages -> cudaMemcpy H2D: slow
+CPU-touched mmap pages     -> cudaMemcpy H2D: fast
+```
 
 ## Evidence
 
@@ -162,5 +202,5 @@ This confirms the core mechanism: CUDA H2D from cold mmap-backed pages is much s
 
 There appear to be two related effects:
 
-1. In high-level Python, chaining `safe_slice[...].to("cuda")` can hit a slow/unstable path. Splitting it into `x = safe_slice[...]` and then `x.to("cuda")` avoids the large outlier.
-2. At lower level, CUDA’s pageable-memory H2D path can be slow from cold mmap-backed pages. CPU page-touching the pages first makes raw `cudaMemcpyHostToDevice` fast.
+1. At the application level, loading directly to CUDA can hit a slow or unstable path. For Transformers, split `from_pretrained(..., device_map="cpu")` and `model.to("cuda")`. For direct safetensors use, split `x = handle.get_slice(key)[...]` and `x.to("cuda")`.
+2. At the lower level, CUDA's pageable-memory H2D path can be slow from cold mmap-backed pages. CPU page-touching the pages first makes raw `cudaMemcpyHostToDevice` fast.
