@@ -8,3 +8,5 @@ accountfull.js
 
 .claude
 .codex
+
+__pycache__

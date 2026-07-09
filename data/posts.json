@@ -1,5 +1,12 @@
 [
   {
+    "title": "CUDA H2D Slowdown From Cold mmap-Backed safetensors Pages on GB10",
+    "date": "2026-07-09",
+    "slug": "cuda-h2d-slowdown-from-cold-mmap-backed-safetensors-pages-on-gb10",
+    "summary": "A debugging note on why CUDA host-to-device copies from safetensors can look slow when the source tensor is backed by cold mmap pages.",
+    "theme": "Technical Notes"
+  },
+  {
     "title": "Inspecting LLM Internals with Public SAE Models and Neuronpedia Annotations",
     "date": "2026-05-19",
     "slug": "inspecting-llm-internals-with-public-sae-models-and-neuronpedia-annotations",
