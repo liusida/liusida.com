@@ -1,150 +1,149 @@
 ## TL;DR
 
-On GB10, if loading a safetensors-backed model is unexpectedly slow, avoid loading or slicing directly onto CUDA.
+On my ASUS Ascent GX10, moving safetensors-backed CPU tensors to CUDA can be much slower than expected. I like this little machine and want it to punch as hard as it can, so I am writing down the workaround for other GX10 / GB10 owners who hit the same strange slowdown.
 
-For Transformers, avoid:
+Two workarounds helped:
 
-```python
-model = AutoModelForCausalLM.from_pretrained(..., device_map="cuda")
-```
+- Direct `safetensors`: materialize first, then call `.to("cuda")`.
+- Transformers: load on CPU, touch CPU model pages, then call `model.to("cuda")`.
 
-Prefer loading on CPU first, then moving the model to CUDA:
-
-```python
-model = AutoModelForCausalLM.from_pretrained(..., device_map="cpu")
-model = model.to("cuda")
-```
-
-For direct safetensors usage, avoid:
-
-```python
-x = handle.get_slice(key)[...].to("cuda")
-```
-
-Prefer splitting materialization and CUDA transfer into two steps:
+Direct `safetensors`:
 
 ```python
 x = handle.get_slice(key)[...]
 x = x.to("cuda")
 ```
 
-## Problem
-
-GB10 is NVIDIA's Grace Blackwell chip used in small desktop AI systems such as NVIDIA DGX Spark and partner variants including ASUS Ascent GX10, Dell Pro Max with GB10, and HP ZGX Nano. These machines are attractive for local model loading and inference because they provide a large unified memory space in a compact box.
-
-In that setting, loading model weights from safetensors files and moving them to CUDA can be unexpectedly slow.
-
-Many users will first see this through Transformers model loading. Under the hood, Transformers may load weights from safetensors files, and some loading paths can combine safetensors-backed tensor materialization with CUDA transfer. In direct safetensors usage, the same pattern appears more explicitly:
+Transformers:
 
 ```python
-x = handle.get_slice(key)[...].to("cuda")
+model = AutoModelForCausalLM.from_pretrained(..., device_map="cpu")
+touch_model_cpu_pages(model)
+model = model.to("cuda")
 ```
 
-The slowdown is visible even when bypassing high-level PyTorch and Transformers APIs:
+The helper function for `touch_model_cpu_pages` is below. This appears to be specific to my GB10 setup.
 
-```c
-cudaMemcpy(dst_gpu, src_cpu, 134217728, cudaMemcpyHostToDevice);
+## The Machine
+
+I was debugging this on my ASUS Ascent GX10. It is one of the small desktop AI systems built around NVIDIA GB10, the Grace Blackwell chip also used in NVIDIA DGX Spark and partner variants such as Dell Pro Max with GB10 and HP ZGX Nano.
+
+## The Symptom
+
+Loading weights from safetensors into CPU memory looked fast:
+
+```text
+Loading weights: 100%|...| 434/434 [00:00<00:00, thousands it/s]
 ```
 
-where `src_cpu` is `tensor.data_ptr()` from a safetensors/PyTorch mmap-backed CPU tensor.
+But moving the model to CUDA could be very slow:
 
-For a 128 MiB tensor, the slow path can take around `1.2s`, while the normal path is around `0.007-0.02s`.
+```text
+Moving model to cuda...
+Moved model to cuda in 42.79s
+```
 
-## Practical Workarounds
+For a 3B model with about 5.75 GiB of weights, this was much slower than I expected.
 
-### Transformers
+## Direct safetensors
 
-For local GB10 use, avoid loading directly to CUDA:
+The direct `safetensors.safe_open` case has a very simple workaround: do not combine materialization and CUDA transfer in one expression.
+
+Bad:
 
 ```python
-model = AutoModelForCausalLM.from_pretrained(..., device_map="cuda")
+x = safe_slice[...].to("cuda")
 ```
 
-Prefer loading the model on CPU first, then moving it to CUDA:
+Good:
+
+```python
+x = safe_slice[...]
+x = x.to("cuda")
+```
+
+Timing on my GB10 machine:
+
+```text
+one-line slice[...].to             avg=0.0913s min=0.0168s max=1.1939s
+two-line x.to                      avg=0.0188s min=0.0174s max=0.0273s
+two-line view(shape).to            avg=0.0262s min=0.0174s max=0.0686s
+two-line page-touch.to             avg=0.0453s min=0.0183s max=0.0790s
+```
+
+The plain two-line version was best. Extra `view()`, `detach()`, or page-touch did not help in this direct safetensors path.
+
+## Transformers
+
+For Transformers, the situation is slightly different.
+
+This is better than direct CUDA loading:
 
 ```python
 model = AutoModelForCausalLM.from_pretrained(..., device_map="cpu")
 model = model.to("cuda")
 ```
 
-This separates model weight materialization from the CUDA transfer path. It is the Transformers-level version of the two-line safetensors workaround below.
-
-### Direct safetensors
-
-For normal Python use with `safetensors.safe_open`, avoid chaining slice materialization and CUDA copy in one expression.
-
-Avoid:
+But on my machine, `model.to("cuda")` could still be slow. Touching each CPU tensor once before moving the model to CUDA helped a lot:
 
 ```python
-x_cuda = handle.get_slice(key)[...].to("cuda")
+def touch_model_cpu_pages(model) -> int:
+    touched = 0
+    with torch.no_grad():
+        for tensor in list(model.parameters()) + list(model.buffers()):
+            if tensor.device.type != "cpu" or tensor.numel() == 0:
+                continue
+            u8 = tensor.detach().view(torch.uint8).reshape(-1)
+            _ = u8[::4096].sum().item()
+            touched += int(u8.numel())
+    return touched
 ```
 
-Prefer:
+Then:
 
 ```python
-x = handle.get_slice(key)[...]
-x_cuda = x.to("cuda")
+model = AutoModelForCausalLM.from_pretrained(
+    model_id,
+    dtype=torch.bfloat16,
+    device_map="cpu",
+)
+touched = touch_model_cpu_pages(model)
+model = model.to("cuda")
 ```
 
-Focused timing on GB10:
+Controlled test on `Qwen/Qwen2.5-Coder-3B`:
 
 ```text
-one-line slice[...].to           avg=0.1755s min=0.0191s max=1.1863s
-two-line x=slice; x.to           avg=0.0300s min=0.0190s max=0.0452s
-two-line touch then to           avg=0.0317s min=0.0198s max=0.0491s
+without page-touch:
+load cpu:        0.41-0.77s
+model.to(cuda): 23.60-32.08s
+
+with page-touch:
+load cpu:        0.49-0.62s
+touch pages:     0.22-0.26s
+model.to(cuda):  8.12-9.94s
 ```
 
-So for the common safetensors/Python path, the two-line pattern is the simplest effective workaround.
+In a multi-model activation script, I saw the same direction:
 
-### Lower-level CUDA
+```text
+before page-touch: model.to(cuda) took about 36-45s
+after page-touch:  model.to(cuda) took about 3-10s
+```
 
-For raw CUDA copies from mmap-backed CPU memory, or for cases where the two-line Python pattern is not enough, touch one byte per page on CPU before H2D:
+The page-touch itself was cheap, but it removed a large part of the transfer cost.
+
+## Why I Think This Happens
+
+This was not just a PyTorch `.to()` artifact. Calling raw CUDA directly could reproduce the slow path:
 
 ```c
-volatile uint8_t *p = (volatile uint8_t *)src_cpu;
-for (size_t off = 0; off < nbytes; off += 4096) {
-    sum += p[off];
-}
-sum += p[nbytes - 1];
-
-cudaMemcpy(dst_gpu, src_cpu, nbytes, cudaMemcpyHostToDevice);
+cudaMemcpy(dst_gpu, src_cpu, 134217728, cudaMemcpyHostToDevice);
 ```
 
-Alternative workaround:
+where `src_cpu` is the `data_ptr()` of a safetensors/PyTorch CPU tensor.
 
-```text
-mmap-backed tensor -> normal anonymous CPU buffer -> CUDA
-```
-
-This adds a CPU memcpy, but can still be much faster than letting CUDA copy directly from cold mmap-backed pages.
-
-## Cause
-
-The evidence does not point to these as the root cause:
-
-- `Tensor.to("cuda")`
-- `Tensor.copy_`
-- TensorIterator
-- bf16 conversion
-- Transformers itself
-- safetensors parsing
-
-Transformers can expose the issue because it sits on top of safetensors/PyTorch loading paths. The lower-level evidence points instead to CUDA runtime/driver behavior when doing Host-to-Device copy from **cold file-backed mmap pages**.
-
-On GB10, `cudaMemcpyHostToDevice` can take a very slow path if CUDA is the first component to fault/touch those mmap-backed pages. If the CPU touches the pages first, the same `cudaMemcpy` becomes fast.
-
-In short:
-
-```text
-cold mmap-backed CPU pages -> cudaMemcpy H2D: slow
-CPU-touched mmap pages     -> cudaMemcpy H2D: fast
-```
-
-## Evidence
-
-### Raw CUDA from safetensors pointer
-
-Using `safe_open(...).get_slice("x")[...]`, then calling raw CUDA directly:
+One run:
 
 ```text
 safe_open raw cudaMemcpy           avg=1.2485s
@@ -153,41 +152,9 @@ safe_open touch then cudaMemcpy    avg=0.0238s
 safe_open CPU libc memcpy          avg=0.0988s
 ```
 
-This shows CPU reads are fast, but CUDA H2D is slow until pages are CPU-touched.
+CPU reads were not the bottleneck. The expensive part was CUDA H2D from the untouched safetensors-backed memory.
 
-### Practical safetensors Python path
-
-The simplest two-line pattern avoids the large outlier:
-
-```text
-one-line slice[...].to           avg=0.1755s min=0.0191s max=1.1863s
-two-line x=slice; x.to           avg=0.0300s min=0.0190s max=0.0452s
-two-line touch then to           avg=0.0317s min=0.0198s max=0.0491s
-```
-
-This suggests that for high-level PyTorch/safetensors usage, binding the materialized CPU tensor to a Python variable before CUDA copy stabilizes the path enough. Explicit page-touch is mainly needed for raw CUDA or colder mmap experiments.
-
-### PyTorch high-level APIs are not the root cause
-
-Direct `copy_` and raw CUDA show the same issue:
-
-```text
-safe_open prealloc.copy_           avg=1.2414s
-safe_open raw cudaMemcpy           avg=1.2485s
-```
-
-So the slowdown is below PyTorch `copy_`.
-
-### Pure `.cu` repro
-
-A pure CUDA/C++ repro using:
-
-```c
-src_cpu = mmap_base + 80;
-cudaMemcpy(dst_gpu, src_cpu, 134217728, cudaMemcpyHostToDevice);
-```
-
-with cold remapped pages shows the same direction:
+A pure `.cu` repro with a file-backed mmap pointer did not fully reproduce the 1.2s worst case, but it reproduced the same direction:
 
 ```text
 remap cold mmap+80 -> gpu          avg=0.09-0.11s
@@ -196,11 +163,83 @@ anon copy -> gpu                   avg=0.0075s
 pinned copy -> gpu                 avg=0.0075s
 ```
 
-This confirms the core mechanism: CUDA H2D from cold mmap-backed pages is much slower than from touched/anonymous/pinned memory.
+So my current interpretation is:
 
-## Current Interpretation
+> On this GB10 setup, CUDA Host-to-Device copies can be unusually slow from cold safetensors / mmap-backed CPU memory. Materializing first, or touching CPU pages before CUDA transfer, avoids the slow path.
 
-There appear to be two related effects:
+I would not treat this as a general PyTorch rule for every machine. On RTX 4090 systems, the same workload did not show this bug.
 
-1. At the application level, loading directly to CUDA can hit a slow or unstable path. For Transformers, split `from_pretrained(..., device_map="cpu")` and `model.to("cuda")`. For direct safetensors use, split `x = handle.get_slice(key)[...]` and `x.to("cuda")`.
-2. At the lower level, CUDA's pageable-memory H2D path can be slow from cold mmap-backed pages. CPU page-touching the pages first makes raw `cudaMemcpyHostToDevice` fast.
+## Appendix: Minimal Test Script
+
+This script compares `model.to("cuda")` with and without the CPU page-touch workaround:
+
+```python
+import argparse
+import time
+
+import torch
+from transformers import AutoModelForCausalLM
+
+
+def touch_model_cpu_pages(model) -> int:
+    touched = 0
+    with torch.no_grad():
+        for tensor in list(model.parameters()) + list(model.buffers()):
+            if tensor.device.type != "cpu" or tensor.numel() == 0:
+                continue
+            u8 = tensor.detach().view(torch.uint8).reshape(-1)
+            _ = u8[::4096].sum().item()
+            touched += int(u8.numel())
+    return touched
+
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--model", default="Qwen/Qwen2.5-Coder-3B")
+parser.add_argument("--touch", action="store_true")
+args = parser.parse_args()
+
+print(f"GPU:   {torch.cuda.get_device_name(0)}")
+print(f"model: {args.model}")
+print(f"touch: {args.touch}")
+
+t0 = time.perf_counter()
+model = AutoModelForCausalLM.from_pretrained(
+    args.model,
+    dtype=torch.bfloat16,
+    device_map="cpu",
+    local_files_only=True,
+    low_cpu_mem_usage=True,
+)
+print(f"load cpu: {time.perf_counter() - t0:.2f}s")
+
+if args.touch:
+    t0 = time.perf_counter()
+    touched = touch_model_cpu_pages(model)
+    print(f"touch cpu pages: {time.perf_counter() - t0:.2f}s, {touched / 1024**3:.2f} GiB")
+
+torch.cuda.synchronize()
+t0 = time.perf_counter()
+model = model.to("cuda")
+torch.cuda.synchronize()
+print(f"model.to(cuda): {time.perf_counter() - t0:.2f}s")
+```
+
+Run:
+
+```bash
+python test_transformers_cpu_touch_to_cuda.py
+python test_transformers_cpu_touch_to_cuda.py --touch
+```
+
+On my GX10, I usually see something like:
+
+```text
+without --touch:
+load cpu:        0.41-0.77s
+model.to(cuda): 23.60-32.08s
+
+with --touch:
+load cpu:        0.49-0.62s
+touch cpu pages: 0.22-0.26s
+model.to(cuda):  8.12-9.94s
+```
