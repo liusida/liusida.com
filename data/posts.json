@@ -1,5 +1,12 @@
 [
   {
+    "title": "Reading The Lifecycle of Software Objects",
+    "date": "2026-07-12",
+    "slug": "reading-the-lifecycle-of-software-objects",
+    "summary": "Reading Ted Chiang's 2010 vision of artificial life in the age of large language models, self-play, and renewed enthusiasm for embodied AI.",
+    "theme": "Book Reviews"
+  },
+  {
     "title": "CUDA H2D Slowdown From Cold mmap-Backed safetensors Pages on GB10",
     "date": "2026-07-09",
     "slug": "cuda-h2d-slowdown-from-cold-mmap-backed-safetensors-pages-on-gb10",

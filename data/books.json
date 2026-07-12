@@ -1,5 +1,18 @@
 [
   {
+    "period": "2025–2026",
+    "books": [
+      {
+        "title": "The Lifecycle of Software Objects",
+        "author": "Ted Chiang",
+        "img": "images/book_covers/2025-2026/The_Lifecycle_of_Software_Objects.jpg",
+        "link": "https://en.wikipedia.org/wiki/The_Lifecycle_of_Software_Objects",
+        "comment": "Written in 2010, before deep learning became mainstream, the book is fascinating to revisit today: if we replace Chiang's word \"genome\" with \"weights,\" the \"digients\" in the book sound surprisingly familiar. Yet this analogy also reveals some limitations in how the book imagines learning.",
+        "review": "post.html?slug=reading-the-lifecycle-of-software-objects"
+      }
+    ]
+  },
+  {
     "period": "2024–2025",
     "books": [
       {
