@@ -1,3 +1,4 @@
+import os
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 
 
@@ -9,6 +10,8 @@ class Handler(SimpleHTTPRequestHandler):
 
 
 if __name__ == "__main__":
-    server = ThreadingHTTPServer(("localhost", 8888), Handler)
-    print("Serving at http://localhost:8888")
+    host = os.environ.get("HOST", "127.0.0.1")
+    port = int(os.environ.get("PORT", "9998"))
+    server = ThreadingHTTPServer((host, port), Handler)
+    print(f"Serving at http://{host}:{port}")
     server.serve_forever()
