@@ -1,5 +1,12 @@
 [
   {
+    "title": "A Case Study in Steering Qwen with ICA Lens",
+    "date": "2026-08-13",
+    "slug": "a-case-study-in-steering-qwen-with-ica-lens",
+    "summary": "A case study in finding, testing, and steering an interpretable ICA direction in Qwen 3.5 2B—and what it suggests about inexpensive alternatives to SAE feature steering.",
+    "theme": "AI and Cognition"
+  },
+  {
     "title": "Rethinking the Arrow of Time After Reading About Deng's Fields Medal",
     "date": "2026-07-26",
     "slug": "the-arrow-of-time-as-a-statistical-orientation",
