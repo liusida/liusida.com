@@ -1,5 +1,12 @@
 [
   {
+    "title": "What Is a Dictionary For? Rethinking How We Evaluate Sparse Autoencoders",
+    "date": "2026-09-09",
+    "slug": "what-is-a-dictionary-for-rethinking-how-we-evaluate-sparse-autoencoders",
+    "summary": "Dictionary learning should be evaluated according to whether it aims to discover, describe, explain, or control neural representations—and especially whether it helps humans understand them.",
+    "theme": "AI and Cognition"
+  },
+  {
     "title": "A Case Study in Steering Qwen with ICA Lens",
     "date": "2026-08-13",
     "slug": "a-case-study-in-steering-qwen-with-ica-lens",
