@@ -1044,10 +1044,8 @@ main > .research-note + .comments-panel {
 
 .post .equation {
     position: relative;
-    margin: 1rem 0;
-    padding: 0.85rem 1rem;
-    border: 1px solid var(--border);
-    border-radius: 6px;
+    margin: 0.5rem 0;
+    padding: 0;
     overflow-x: auto;
 }
 
