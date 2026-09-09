@@ -1,6 +1,6 @@
 [
   {
-    "title": "What Is a Dictionary For? Rethinking How We Evaluate Sparse Autoencoders",
+    "title": "What Is a Dictionary For?",
     "date": "2026-09-09",
     "slug": "what-is-a-dictionary-for-rethinking-how-we-evaluate-sparse-autoencoders",
     "summary": "Dictionary learning should be evaluated according to whether it aims to discover, describe, explain, or control neural representations—and especially whether it helps humans understand them.",
