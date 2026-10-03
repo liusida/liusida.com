@@ -1,5 +1,12 @@
 [
   {
+    "title": "Do We Really Need the Bias in SAE Models?",
+    "date": "2026-10-03",
+    "slug": "do-we-really-need-the-bias-in-sae-models",
+    "summary": "A pilot experiment comparing weekday directions measured from the transformer’s model origin and from an SAE decoder bias, revealing a trade-off between angular separation and ranking stability.",
+    "theme": "AI and Cognition"
+  },
+  {
     "title": "What Is a Dictionary For?",
     "date": "2026-09-09",
     "slug": "what-is-a-dictionary-for-rethinking-how-we-evaluate-sparse-autoencoders",
