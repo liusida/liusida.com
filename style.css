@@ -229,6 +229,14 @@ h1, h2, h3 {
     opacity: 1;
 }
 
+.alphaxiv-icon {
+    font-family: Inter, sans-serif;
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    line-height: 1;
+}
+
 .xhs-icon {
     height: 22px;
     width: auto;
