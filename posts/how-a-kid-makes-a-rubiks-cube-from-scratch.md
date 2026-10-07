@@ -154,4 +154,4 @@ The improvement seemed to work.
 
 ### **Final Remark**
 
-So now I am sitting in our Singapore home writing this report, while he is on an airplane. I’m looking forward to seeing the final result from Hangzhou.
+So now I am sitting in front of my computer writing this report, while he is on an airplane. I’m looking forward to seeing the final result from Hangzhou.
