@@ -1,14 +1,5 @@
 [
   {
-    "title": "My Attempt to Explain the Jacobian Lens: A Single Jacobian Already Works",
-    "date": "2026-11-01",
-    "slug": "single-jacobian-lens",
-    "url": "/research-notes/single-jacobian-lens/",
-    "summary": "Testing whether individual same-position Jacobians contain reusable transport structure before averaging across positions and contexts.",
-    "theme": "AI and Cognition",
-    "type": "research-note"
-  },
-  {
     "title": "Do We Really Need the Bias in SAE Models?",
     "date": "2026-10-03",
     "slug": "do-we-really-need-the-bias-in-sae-models",

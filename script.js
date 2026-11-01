@@ -45,9 +45,7 @@ function toggleOrder(btn) {
 
             narrativeEl.textContent = THEMES['All'];
 
-            posts.filter(function (p) {
-                return p.type !== 'research-note';
-            }).forEach(function (p) {
+            posts.forEach(function (p) {
                 var card = document.createElement('a');
                 card.className = 'post-card';
                 card.href = '/post/' + encodeURIComponent(p.slug);
