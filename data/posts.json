@@ -1,5 +1,12 @@
 [
   {
+    "title": "Not Everything in Mech Interp Has to Be Causal",
+    "date": "2026-11-06",
+    "slug": "not-everything-in-mech-interp-has-to-be-causal",
+    "summary": "Causal evidence is essential for causal claims, but descriptive discoveries, representational studies, and exploratory tools can deepen our understanding of neural networks without directly explaining their outputs.",
+    "theme": "AI and Cognition"
+  },
+  {
     "title": "Do We Really Need the Bias in SAE Models?",
     "date": "2026-10-03",
     "slug": "do-we-really-need-the-bias-in-sae-models",
