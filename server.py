@@ -5,7 +5,12 @@ from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 class Handler(SimpleHTTPRequestHandler):
     def do_GET(self):
         if self.path.startswith("/post/"):
-            self.path = "/post.html"
+            # Mimic GitHub Pages: /post/<slug> -> post/<slug>.html if pre-rendered.
+            slug = self.path.split("?", 1)[0][len("/post/"):].strip("/")
+            if slug and os.path.isfile(os.path.join("post", slug + ".html")):
+                self.path = f"/post/{slug}.html"
+            else:
+                self.path = "/post.html"
         return super().do_GET()
 
 
