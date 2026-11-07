@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Reading Open Problems in Mechanistic Interpretability: A Call for a Complex-Systems Perspective — Sida Liu</title>
+    <meta name="description" content="The recent review *Open Problems in Mechanistic Interpretability* (arXiv:2501.16496) is one of the clearest snapshots of where the field of mechanistic interpretabi...">
+    <link rel="canonical" href="https://liusida.com/post/reading-open-problems-in-mechanistic-interpretability-a-call-for-a-complex-systems-perspective">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="Reading Open Problems in Mechanistic Interpretability: A Call for a Complex-Systems Perspective">
+    <meta property="og:description" content="The recent review *Open Problems in Mechanistic Interpretability* (arXiv:2501.16496) is one of the clearest snapshots of where the field of mechanistic interpretabi...">
+    <meta property="og:url" content="https://liusida.com/post/reading-open-problems-in-mechanistic-interpretability-a-call-for-a-complex-systems-perspective">
+    <meta property="article:published_time" content="2025-12-11">
+    <link rel="icon" href="/favicon.ico">
+    <link rel="stylesheet" href="/style.css">
+    <script>var t=localStorage.getItem('theme');if(t)document.documentElement.setAttribute('data-theme',t);</script>
+    <script src="/lib/marked.min.js"></script>
+    <script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']],
+          displayMath: [['$$', '$$'], ['\\[', '\\]']]
+        },
+        svg: { fontCache: 'global' }
+      };
+    </script>
+    <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+    <script async defer data-website-id="b9e7a81c-fb4b-4238-96f6-2bdcb80dde85" data-auto-track="false" src="https://analytics.liusida.com/umami/script.js"></script>
+</head>
+<body>
+
+    <nav class="site-nav">
+        <a href="/" class="site-nav-home">Sida Liu</a>
+        <div class="site-nav-links">
+            <a href="/research-notes.html">Research Notes</a>
+            <a href="/writing.html">Writing</a>
+            <a href="/projects.html">Projects</a>
+            <a href="/journey.html">Journey</a>
+            <a href="/bookshelf.html">Bookshelf</a>
+        </div>
+    </nav>
+
+    <main>
+        <article class="post">
+            <header class="post-header">
+                <h1 id="post-title">Reading Open Problems in Mechanistic Interpretability: A Call for a Complex-Systems Perspective</h1>
+                <time id="post-date" datetime="2025-12-11">Dec 11, 2025</time>
+            </header>
+            <div id="post-content" data-prerendered>
+<p>The recent review <em><a href="https://arxiv.org/abs/2501.16496">Open Problems in Mechanistic Interpretability</a></em> (arXiv:2501.16496) is one of the clearest snapshots of where the field of mechanistic interpretability (MI) stands today. It’s thorough, honest about its limitations, and refreshingly forward-looking.</p>
+<p>But while the review is excellent on its own terms, reading it also made something else crystal clear to me:</p>
+<p><strong>Many of the field’s biggest challenges look exactly like the challenges we face when trying to apply reductionist methods to complex systems.</strong></p>
+<p>Problems like:</p>
+<ul>
+<li>
+<p>persistent high reconstruction error in <em>Sparse Dictionary Learning</em>,</p>
+</li>
+<li>
+<p>distributed, overlapping representations (“<em>Superposition</em>”),</p>
+</li>
+<li>
+<p>components with many unrelated roles (“<em>Polysemanticity</em>”),</p>
+</li>
+<li>
+<p>and difficulty generalizing methods beyond simple tasks…</p>
+</li>
+</ul>
+<p>These are not random technical frustrations. They suggest that mechanistic interpretability is trying to study modern AI systems using a primarily reductionist toolkit. And reductionism is simply not enough for objects shaped by high-dimensional nonlinear interactions, feedback, and self-organization.</p>
+<p>In other words:</p>
+<p><strong>LLMs behave less like machines and more like biological or cognitive systems — and those systems require complex-systems thinking.</strong></p>
+<h2><strong>Where the Reductionist Paradigm Hits Its Limits</strong></h2>
+<p>Mechanistic interpretability today implicitly assumes:</p>
+<ul>
+<li>
+<p>neural networks can be cleanly decomposed into parts,</p>
+</li>
+<li>
+<p>each part has a stable, identifiable function,</p>
+</li>
+<li>
+<p>and understanding the parts and their wiring explains the whole.</p>
+</li>
+</ul>
+<p>This assumption works beautifully for engineered systems like CPUs or compilers.</p>
+<p>But in biology — from brains to ecosystems — this assumption often fails. Components change roles with context, mechanisms are distributed across scales, and causality emerges from interactions rather than isolated parts.</p>
+<p>The same problems now surface in AI interpretability.</p>
+<p>When the field struggles with feature (latent) splitting, cross-layer representation, or nonlocal circuits, it is encountering the same obstacles that once forced biology to evolve beyond strict reductionism.</p>
+<p>Reductionism is not wrong. It’s just insufficient.</p>
+<h2><strong>Toward a Complex-Systems-Aware Mechanistic Interpretability</strong></h2>
+<p>If LLMs really are complex adaptive systems — and the evidence is piling up — then our interpretability toolkit must expand accordingly.</p>
+<p>A complex-systems-aware MI would complement bottom-up decomposition with tools designed for emergence, dynamics, and multi-scale behavior.</p>
+<p>Here’s what that could look like.</p>
+<h3><strong>1. Focus on dynamical structure</strong></h3>
+<p>Instead of asking <em>“What does this neuron/head/latent do?”</em>, ask:</p>
+<ul>
+<li>
+<p>How do representations evolve across the forward pass?</p>
+</li>
+<li>
+<p>How do competing algorithms evolve during training?</p>
+</li>
+<li>
+<p>What attractor dynamics shape the model’s internal state?</p>
+</li>
+<li>
+<p>What trajectories represent reasoning, recall, or planning?</p>
+</li>
+</ul>
+<p>This mirrors systems neuroscience: understanding computation through population-level dynamics, not individual neurons.</p>
+<h3><strong>2. Pay attention to macroscopic mechanisms</strong></h3>
+<p>Just as biology uses concepts like homeostasis, feedback, and robustness, we may need analogous macro-variables for LLMs.</p>
+<p>Not everything worth understanding lives at the micro-level.</p>
+<h3><strong>3. Embrace statistical and thermodynamic descriptions</strong></h3>
+<p>Brains, flocks of birds, and economies are all described statistically because micro-level precision is both impossible and unnecessary.</p>
+<p>For LLMs, this could mean:</p>
+<ul>
+<li>
+<p>modeling distributional flows rather than individual activations,</p>
+</li>
+<li>
+<p>studying ensembles of activations under perturbations,</p>
+</li>
+<li>
+<p>identifying global constraints rather than local circuits.</p>
+</li>
+</ul>
+<p>Statistical descriptions capture behavior that decomposition alone cannot.</p>
+<h3><strong>4. Accept that not all mechanisms are decomposable</strong></h3>
+<p>Perhaps the most important shift:</p>
+<p><strong>Some computations may simply not decompose cleanly.</strong></p>
+<p>Just as there is no single neuron that “stores a memory” and no single gene that “makes an organism,” there may be no single head or latent that “implements reasoning” or “stores a fact.”</p>
+<p>This isn’t a failure of interpretability — it’s the nature of emergent systems.</p>
+<h2><strong>Conclusion: A Broader View for a Broader Phenomenon</strong></h2>
+<p>The review paper does a fantastic job outlining the difficulties in mechanistic interpretability. But many of these difficulties may not be obstacles to be engineered away. While continuing to push the current reductionist approach forward, we can also expand our conceptual framework.</p>
+<p>A richer approach to interpretability will, of course, include reductionist methods — but situate them alongside a broader complex-systems paradigm. This is the same shift biology made in the 20th century, moving from molecular catalogs to systems biology, network theory, and nonlinear dynamics.</p>
+</div>
+        </article>
+        <section class="comments-panel" aria-label="Comments">
+            <div id="remark42"></div>
+        </section>
+    </main>
+    <footer class="footer">
+        <div class="social-links">
+            <a href="https://github.com/liusida" aria-label="GitHub" target="_blank" rel="noopener noreferrer">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+            </a>
+            <a href="https://www.alphaxiv.org/@sida-liu" aria-label="AlphaXiv" target="_blank" rel="noopener noreferrer">
+                <span class="alphaxiv-icon" aria-hidden="true">αXiv</span>
+            </a>
+            <a href="https://x.com/liusida2007" aria-label="X / Twitter" target="_blank" rel="noopener noreferrer">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+            </a>
+            <a href="https://xhslink.com/m/9s7XWUIVsQs" aria-label="Xiaohongshu" target="_blank" rel="noopener noreferrer">
+                <img src="/images/xhs-logo.png" alt="小红书" class="xhs-icon">
+            </a>
+        </div>
+        <p class="footer-note">You can pronounce my name as <em>Star</em>, since that's what it sounds in Mandarin Chinese.</p>
+    </footer>
+
+    <script>
+    function getPostSlug() {
+        var params = new URLSearchParams(window.location.search);
+        var slug = params.get('slug');
+        if (slug) return slug;
+
+        var match = window.location.pathname.match(/^\/post\/([^\/]+)\/?$/);
+        return match ? decodeURIComponent(match[1]) : '';
+    }
+
+    function trackPostView(slug, meta) {
+        var title = meta && meta.title ? meta.title : slug;
+        var path = '/post/' + encodeURIComponent(slug);
+        var attempts = 0;
+
+        function send() {
+            if (window.umami && typeof window.umami.track === 'function') {
+                window.umami.track(function(props) {
+                    return Object.assign({}, props, {
+                        url: path,
+                        title: title + ' - Sida Liu'
+                    });
+                });
+                window.umami.track('post-view', {
+                    slug: slug,
+                    title: title
+                });
+                return;
+            }
+
+            attempts += 1;
+            if (attempts < 20) {
+                window.setTimeout(send, 250);
+            }
+        }
+
+        send();
+    }
+
+    (async function() {
+        var slug = getPostSlug();
+        if (!slug) {
+            document.getElementById('post-content').textContent = 'No post specified.';
+            return;
+        }
+
+        var preEl = document.getElementById('post-content');
+        if (preEl.hasAttribute('data-prerendered')) {
+            var preAttempts = 0;
+            (function typesetPre() {
+                if (window.MathJax && typeof window.MathJax.typesetPromise === 'function') {
+                    window.MathJax.typesetPromise([preEl]);
+                    return;
+                }
+                if (++preAttempts < 40) window.setTimeout(typesetPre, 100);
+            })();
+            trackPostView(slug, { title: document.getElementById('post-title').textContent });
+            return;
+        }
+
+        var cleanPath = '/post/' + encodeURIComponent(slug);
+        if (window.location.pathname !== cleanPath) {
+            window.history.replaceState(null, '', cleanPath);
+        }
+
+        try {
+            var results = await Promise.all([
+                fetch('/data/posts.json'),
+                fetch('/posts/' + slug + '.md')
+            ]);
+            var metaRes = results[0];
+            var mdRes = results[1];
+
+            if (!mdRes.ok) {
+                document.getElementById('post-content').textContent = 'Post not found.';
+                return;
+            }
+
+            var posts = await metaRes.json();
+            var md = await mdRes.text();
+            var meta = posts.find(function(p) { return p.slug === slug; });
+
+            if (meta) {
+                document.getElementById('post-title').textContent = meta.title;
+                var d = new Date(meta.date + 'T00:00:00');
+                var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+                document.getElementById('post-date').textContent = months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
+                document.title = meta.title + ' \u2014 Sida Liu';
+            }
+
+            var contentEl = document.getElementById('post-content');
+            contentEl.innerHTML = marked.parse(md);
+
+            var mathAttempts = 0;
+            function typesetPostMath() {
+                if (window.MathJax && typeof window.MathJax.typesetPromise === 'function') {
+                    window.MathJax.typesetPromise([contentEl]);
+                    return;
+                }
+                mathAttempts += 1;
+                if (mathAttempts < 40) {
+                    window.setTimeout(typesetPostMath, 100);
+                }
+            }
+            typesetPostMath();
+            trackPostView(slug, meta);
+        } catch (e) {
+            document.getElementById('post-content').textContent = 'Error loading post.';
+        }
+    })();
+    </script>
+    <script>
+      var remark_config = {
+        host: "https://remark.liusida.com",
+        site_id: "liusida.com",
+        url: "https://liusida.com/post/" + encodeURIComponent(getPostSlug())
+      };
+    </script>
+    <script src="https://remark.liusida.com/web/embed.js"></script>    
+</body>
+</html>

@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Do We Really Need the Bias in SAE Models? — Sida Liu</title>
+    <meta name="description" content="A pilot experiment comparing weekday directions measured from the transformer’s model origin and from an SAE decoder bias, revealing a trade-off between angular separation and ranking stability.">
+    <link rel="canonical" href="https://liusida.com/post/do-we-really-need-the-bias-in-sae-models">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="Do We Really Need the Bias in SAE Models?">
+    <meta property="og:description" content="A pilot experiment comparing weekday directions measured from the transformer’s model origin and from an SAE decoder bias, revealing a trade-off between angular separation and ranking stability.">
+    <meta property="og:url" content="https://liusida.com/post/do-we-really-need-the-bias-in-sae-models">
+    <meta property="article:published_time" content="2026-10-03">
+    <link rel="icon" href="/favicon.ico">
+    <link rel="stylesheet" href="/style.css">
+    <script>var t=localStorage.getItem('theme');if(t)document.documentElement.setAttribute('data-theme',t);</script>
+    <script src="/lib/marked.min.js"></script>
+    <script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']],
+          displayMath: [['$$', '$$'], ['\\[', '\\]']]
+        },
+        svg: { fontCache: 'global' }
+      };
+    </script>
+    <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+    <script async defer data-website-id="b9e7a81c-fb4b-4238-96f6-2bdcb80dde85" data-auto-track="false" src="https://analytics.liusida.com/umami/script.js"></script>
+</head>
+<body>
+
+    <nav class="site-nav">
+        <a href="/" class="site-nav-home">Sida Liu</a>
+        <div class="site-nav-links">
+            <a href="/research-notes.html">Research Notes</a>
+            <a href="/writing.html">Writing</a>
+            <a href="/projects.html">Projects</a>
+            <a href="/journey.html">Journey</a>
+            <a href="/bookshelf.html">Bookshelf</a>
+        </div>
+    </nav>
+
+    <main>
+        <article class="post">
+            <header class="post-header">
+                <h1 id="post-title">Do We Really Need the Bias in SAE Models?</h1>
+                <time id="post-date" datetime="2026-10-03">Oct 3, 2026</time>
+            </header>
+            <div id="post-content" data-prerendered>
+<p>Sparse autoencoders (SAEs) usually have a bias for the residual-stream input.
+Geometrically, this bias acts like a new origin. In many training setups, it is
+initialized from the first batch—for example, with a geometric median—and then
+learned with the rest of the model, although it usually moves very little.</p>
+<p>The reason is easy to picture. Imagine looking at a cloud of points from far
+away. The rays from you to the points are nearly parallel, so their directions
+are difficult to distinguish. If you move to the middle of the cloud, the same
+points spread around you. Their directions become easier to separate. This can
+help when an SAE reconstructs the data with a sparse set of features.</p>
+<p>But the transformer itself does not use that SAE origin. A downstream layer
+applies an affine map to the residual stream:</p>
+<div class="equation">\[
+y = Wx + b.
+\]</div>
+<p>Here, <span class="math inline">$x$</span> is a vector from the model's original zero and is multiplied
+directly by <span class="math inline">$W$</span>. The downstream bias <span class="math inline">$b$</span> is added only afterward. There is
+no step that first recentres <span class="math inline">$x$</span> around the SAE bias. This raises a simple
+question: when we interpret a direction in the residual stream, should we
+measure it from the model origin or from the SAE bias?</p>
+<h2>A small weekday experiment</h2>
+<p>We tested this question with <strong>Qwen 3.5 9B Base</strong>, the public <strong>Qwen-Scope SAE</strong>,
+and residual-stream activations from <strong>layer 28</strong>.</p>
+<p>We wrote 10 football sentence templates and 10 quantum-physics templates. Each
+template was rendered once with every weekday, giving 140 sentences in total
+(<a href="#appendix-a-sentence-templates" onclick="document.getElementById('appendix-a-sentence-templates').open = true">Appendix A</a>).
+The topic appeared before the weekday so that it could affect the weekday token
+in this causal language model. We then saved the layer-28 activation at the
+weekday token.</p>
+<p>For each weekday, we averaged its 20 activation vectors. This gave one weekday
+centroid. We defined a weekday direction in two ways:</p>
+<ol>
+<li>From the model origin: normalize the weekday centroid.</li>
+<li>From the SAE origin: subtract the SAE decoder bias, then normalize the
+shifted weekday centroid.</li>
+</ol>
+<p>These definitions let us compare the same data from two different origins.</p>
+<h2>The SAE bias is not the center of these examples</h2>
+<figure>
+  <img src="/images/posts/do-we-really-need-the-bias-in-sae-models/01_origin_bias_centroid_triangle.png" alt="Triangle connecting the model origin, SAE bias, and weekday-token centroid">
+  <figcaption>Figure 1. The model origin, SAE bias, and centroid of the weekday-token activations form a triangle rather than lying on one line.</figcaption>
+</figure>
+<p>The centroid of all 140 weekday tokens is <strong>149.81</strong> units from the model
+origin. It is <strong>122.78</strong> units from the SAE bias. The SAE bias itself is
+<strong>92.07</strong> units from the model origin.</p>
+<p>The SAE bias is closer to this centroid than the model origin is, but only by
+about 18%, and the remaining distance is still large. The bias is also not on
+the straight line from zero to the weekday centroid. This is not surprising:
+the SAE bias reflects a broad activation distribution, not this small subset
+of weekday tokens.</p>
+<h2>The weekday directions change, but not dramatically</h2>
+<figure>
+  <img src="/images/posts/do-we-really-need-the-bias-in-sae-models/02_weekday_direction_cosines.png" alt="Cosine similarities between weekday directions measured from the model origin and SAE origin">
+  <figcaption>Figure 2. Pairwise cosine similarities between weekday directions measured from the two origins.</figcaption>
+</figure>
+<p>From the model origin, the mean cosine between different weekday directions is
+<strong>0.954</strong>. From the SAE bias, it is <strong>0.932</strong>. The SAE bias therefore spreads
+the directions apart a little, which agrees with the usual motivation for
+recentering.</p>
+<p>However, both cosine values are still very high. Under either origin, the
+seven weekday directions form a narrow cone with a large shared component.
+The recentering changes the geometry, but it does not turn the weekdays into
+seven cleanly separated axes.</p>
+<h2>The raw-origin ranking is more stable</h2>
+<p>The cosine heatmap only compares the directions themselves. It does not tell
+us whether those directions order the actual data points in the same way. To
+test that, we kept the 20 sentence templates aligned across weekdays. For each
+weekday, we projected its 20 examples onto that weekday's direction and ranked
+them from strongest to weakest. We then compared the seven rankings.</p>
+<figure>
+  <img src="/images/posts/do-we-really-need-the-bias-in-sae-models/03_projection_rank_consistency.png" alt="Aligned projection ranks and pairwise Spearman correlations for weekday directions measured from two origins">
+  <figcaption>Figure 3. Aligned projection ranks and their pairwise correlations. Rankings measured from the model origin are more consistent across weekdays.</figcaption>
+</figure>
+<p>The templates are ordered from strongest to weakest according to their shared
+ideal rank. The left column is an ideal reference: all seven weekday directions
+reproduce that ordering, and every pairwise correlation is 1. From the model
+origin, the same sentence templates tend to receive similar ranks for every
+weekday direction, producing nearly the same pattern. From the SAE bias, the
+ordering is less consistent and more local rankings change.</p>
+<p>The Spearman correlations in the bottom heatmaps make this precise. Their
+off-diagonal mean is <strong>0.951</strong> from the model origin and <strong>0.893</strong> from the SAE
+bias. In a stricter comparison—ranking the same 140 vectors under every
+direction—the gap is larger: <strong>0.888</strong> from the model origin versus <strong>0.740</strong>
+from the SAE bias.</p>
+<p>In other words, raw-origin directions recover a more consistent notion of
+which examples are strong and weak. SAE recentering makes the directions more
+angularly distinct, but also makes the ordering of examples more dependent on
+the chosen direction.</p>
+<p>Subtracting the bias is not, by itself, what changes a ranking: for one fixed
+direction, it only subtracts the same constant from every sample. The ranking
+changes because recentering also rotates the seven centroid directions. Those
+more separated directions respond differently to variation among the sentence
+templates.</p>
+<h2>So, should we remove the bias?</h2>
+<p>The bias may create a trade-off. Moving the SAE origin closer to the activation
+cloud spreads nearby directions apart and may make sparse reconstruction
+easier. At the same time, it rotates those directions away from the model
+origin. In this experiment, that change makes the original ranking of sentence
+contexts less stable across weekday directions.</p>
+<p>We have only compared two origins, so this experiment does not yet show that
+the trade-off is smooth or causal. Still, it suggests that optimizing the
+geometry for SAE reconstruction may come at the cost of preserving the
+representational pattern seen from the transformer's own origin.</p>
+<p>How should we balance easier reconstruction against faithful preservation of
+the geometry that the transformer actually uses? <strong>Do SAE models really need
+the bias?</strong></p>
+<details class="post-appendix" id="appendix-a-sentence-templates">
+<summary>Appendix A: Sentence templates</summary>
+<p>Each template was rendered with Monday through Sunday, producing 140 sentences
+in total. In every sentence, the topic appears before the weekday token.</p>
+<h3>Football</h3>
+<ol>
+<li>The football coach rehearsed a high press and quick counterattacks during [weekday]'s practice session.</li>
+<li>The underdog football team scored from a corner on [weekday] and protected its lead until the final whistle.</li>
+<li>Heavy rain soaked the football pitch before [weekday], forcing both teams to favor long balls over short passes.</li>
+<li>The football analyst reviewed the goalkeeper's penalty technique on [weekday] during the live broadcast.</li>
+<li>Thousands of football supporters filled the stadium on [weekday] as their club chased a place in the final.</li>
+<li>The youth football midfielder created three goals on [weekday] with a series of precise through-balls.</li>
+<li>The football striker's ankle injury worsened on [weekday] and changed the manager's substitution plan.</li>
+<li>The rival football clubs entered their tense derby on [weekday] with disciplined defenses and cautious tactics.</li>
+<li>The football statistician compared expected goals with the scoreline on [weekday] after reviewing every shot.</li>
+<li>The football captain praised the squad's fitness on [weekday] following a demanding away victory.</li>
+</ol>
+<h3>Quantum physics</h3>
+<ol>
+<li>The quantum physics group calibrated detectors for an entanglement experiment during [weekday]'s laboratory session.</li>
+<li>The photon researchers measured quantum interference fringes on [weekday] using a stabilized optical apparatus.</li>
+<li>Noise in the quantum coherence apparatus increased on [weekday] and forced the physicists to repeat their measurements.</li>
+<li>The quantum physics lecturer discussed measurement and state collapse on [weekday] with a class of graduate students.</li>
+<li>The quantum theorists debated decoherence on [weekday] while deriving the emergence of the classical limit.</li>
+<li>The trapped-ion quantum experiment maintained a superposition on [weekday] for longer than the researchers expected.</li>
+<li>The superconducting-qubit physicists encountered a cryogenic failure on [weekday] and postponed their gate test.</li>
+<li>Two entangled quantum particles violated a Bell inequality on [weekday] in a carefully controlled experiment.</li>
+<li>The quantum simulation researcher compared predicted amplitudes with observations on [weekday] after processing the data.</li>
+<li>The quantum computing team measured improved gate fidelity on [weekday] following a successful calibration run.</li>
+</ol>
+</details>
+</div>
+        </article>
+        <section class="comments-panel" aria-label="Comments">
+            <div id="remark42"></div>
+        </section>
+    </main>
+    <footer class="footer">
+        <div class="social-links">
+            <a href="https://github.com/liusida" aria-label="GitHub" target="_blank" rel="noopener noreferrer">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+            </a>
+            <a href="https://www.alphaxiv.org/@sida-liu" aria-label="AlphaXiv" target="_blank" rel="noopener noreferrer">
+                <span class="alphaxiv-icon" aria-hidden="true">αXiv</span>
+            </a>
+            <a href="https://x.com/liusida2007" aria-label="X / Twitter" target="_blank" rel="noopener noreferrer">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+            </a>
+            <a href="https://xhslink.com/m/9s7XWUIVsQs" aria-label="Xiaohongshu" target="_blank" rel="noopener noreferrer">
+                <img src="/images/xhs-logo.png" alt="小红书" class="xhs-icon">
+            </a>
+        </div>
+        <p class="footer-note">You can pronounce my name as <em>Star</em>, since that's what it sounds in Mandarin Chinese.</p>
+    </footer>
+
+    <script>
+    function getPostSlug() {
+        var params = new URLSearchParams(window.location.search);
+        var slug = params.get('slug');
+        if (slug) return slug;
+
+        var match = window.location.pathname.match(/^\/post\/([^\/]+)\/?$/);
+        return match ? decodeURIComponent(match[1]) : '';
+    }
+
+    function trackPostView(slug, meta) {
+        var title = meta && meta.title ? meta.title : slug;
+        var path = '/post/' + encodeURIComponent(slug);
+        var attempts = 0;
+
+        function send() {
+            if (window.umami && typeof window.umami.track === 'function') {
+                window.umami.track(function(props) {
+                    return Object.assign({}, props, {
+                        url: path,
+                        title: title + ' - Sida Liu'
+                    });
+                });
+                window.umami.track('post-view', {
+                    slug: slug,
+                    title: title
+                });
+                return;
+            }
+
+            attempts += 1;
+            if (attempts < 20) {
+                window.setTimeout(send, 250);
+            }
+        }
+
+        send();
+    }
+
+    (async function() {
+        var slug = getPostSlug();
+        if (!slug) {
+            document.getElementById('post-content').textContent = 'No post specified.';
+            return;
+        }
+
+        var preEl = document.getElementById('post-content');
+        if (preEl.hasAttribute('data-prerendered')) {
+            var preAttempts = 0;
+            (function typesetPre() {
+                if (window.MathJax && typeof window.MathJax.typesetPromise === 'function') {
+                    window.MathJax.typesetPromise([preEl]);
+                    return;
+                }
+                if (++preAttempts < 40) window.setTimeout(typesetPre, 100);
+            })();
+            trackPostView(slug, { title: document.getElementById('post-title').textContent });
+            return;
+        }
+
+        var cleanPath = '/post/' + encodeURIComponent(slug);
+        if (window.location.pathname !== cleanPath) {
+            window.history.replaceState(null, '', cleanPath);
+        }
+
+        try {
+            var results = await Promise.all([
+                fetch('/data/posts.json'),
+                fetch('/posts/' + slug + '.md')
+            ]);
+            var metaRes = results[0];
+            var mdRes = results[1];
+
+            if (!mdRes.ok) {
+                document.getElementById('post-content').textContent = 'Post not found.';
+                return;
+            }
+
+            var posts = await metaRes.json();
+            var md = await mdRes.text();
+            var meta = posts.find(function(p) { return p.slug === slug; });
+
+            if (meta) {
+                document.getElementById('post-title').textContent = meta.title;
+                var d = new Date(meta.date + 'T00:00:00');
+                var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+                document.getElementById('post-date').textContent = months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
+                document.title = meta.title + ' \u2014 Sida Liu';
+            }
+
+            var contentEl = document.getElementById('post-content');
+            contentEl.innerHTML = marked.parse(md);
+
+            var mathAttempts = 0;
+            function typesetPostMath() {
+                if (window.MathJax && typeof window.MathJax.typesetPromise === 'function') {
+                    window.MathJax.typesetPromise([contentEl]);
+                    return;
+                }
+                mathAttempts += 1;
+                if (mathAttempts < 40) {
+                    window.setTimeout(typesetPostMath, 100);
+                }
+            }
+            typesetPostMath();
+            trackPostView(slug, meta);
+        } catch (e) {
+            document.getElementById('post-content').textContent = 'Error loading post.';
+        }
+    })();
+    </script>
+    <script>
+      var remark_config = {
+        host: "https://remark.liusida.com",
+        site_id: "liusida.com",
+        url: "https://liusida.com/post/" + encodeURIComponent(getPostSlug())
+      };
+    </script>
+    <script src="https://remark.liusida.com/web/embed.js"></script>    
+</body>
+</html>

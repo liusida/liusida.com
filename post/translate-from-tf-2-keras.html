@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>from Tensorflow to Keras — Sida Liu</title>
+    <meta name="description" content="">
+    <link rel="canonical" href="https://liusida.com/post/translate-from-tf-2-keras">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="from Tensorflow to Keras">
+    <meta property="og:description" content="">
+    <meta property="og:url" content="https://liusida.com/post/translate-from-tf-2-keras">
+    <meta property="article:published_time" content="2016-10-31">
+    <link rel="icon" href="/favicon.ico">
+    <link rel="stylesheet" href="/style.css">
+    <script>var t=localStorage.getItem('theme');if(t)document.documentElement.setAttribute('data-theme',t);</script>
+    <script src="/lib/marked.min.js"></script>
+    <script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']],
+          displayMath: [['$$', '$$'], ['\\[', '\\]']]
+        },
+        svg: { fontCache: 'global' }
+      };
+    </script>
+    <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+    <script async defer data-website-id="b9e7a81c-fb4b-4238-96f6-2bdcb80dde85" data-auto-track="false" src="https://analytics.liusida.com/umami/script.js"></script>
+</head>
+<body>
+
+    <nav class="site-nav">
+        <a href="/" class="site-nav-home">Sida Liu</a>
+        <div class="site-nav-links">
+            <a href="/research-notes.html">Research Notes</a>
+            <a href="/writing.html">Writing</a>
+            <a href="/projects.html">Projects</a>
+            <a href="/journey.html">Journey</a>
+            <a href="/bookshelf.html">Bookshelf</a>
+        </div>
+    </nav>
+
+    <main>
+        <article class="post">
+            <header class="post-header">
+                <h1 id="post-title">from Tensorflow to Keras</h1>
+                <time id="post-date" datetime="2016-10-31">Oct 31, 2016</time>
+            </header>
+            <div id="post-content" data-prerendered>
+<p>I know 3 high level api for deep learning. They are Tensorflow.contrib.learn(SKFlow), TFLearn and Keras. All of them are great tools, but maybe I like Keras because of the easy style of code.</p>
+<p>When I came through the <a href="https://www.tensorflow.org/versions/r0.11/tutorials/wide_and_deep/index.html">Tensorflow Tutorial of Deep and Wide Learning</a>, I felt I can translate the code from tf.contrib.learn into Keras.</p>
+<p><img src="https://www.tensorflow.org/versions/r0.11/images/wide_n_deep.svg" alt="Tensorflow Wide and Deep Learning" /></p>
+<p>In Tensorflow's tutorial, they said that, using Wide&amp;Deep Model together, they could improve the accuracy from 83.6% to about 84.4%. After my Keras code was finished, I found that the accuracy of my new model is more than 85%. Although I used more units in the model, that's still nice I think!~</p>
+<p>The dataset can be download here: <a href="https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.data">train_dataset</a> and <a href="https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.test">test_dataset</a></p>
+<p>Here is my code for Keras:</p>
+<pre><code class="language-python">from keras.models import Sequential
+from keras.layers import Dense
+from sklearn.preprocessing import MinMaxScaler
+import numpy as np
+import pandas as pd
+
+COLUMNS = [&quot;age&quot;, &quot;workclass&quot;, &quot;fnlwgt&quot;, &quot;education&quot;, &quot;education_num&quot;,
+           &quot;marital_status&quot;, &quot;occupation&quot;, &quot;relationship&quot;, &quot;race&quot;, &quot;gender&quot;,
+           &quot;capital_gain&quot;, &quot;capital_loss&quot;, &quot;hours_per_week&quot;, &quot;native_country&quot;,
+           &quot;income_bracket&quot;]
+LABEL_COLUMN = &quot;label&quot;
+CATEGORICAL_COLUMNS = [&quot;workclass&quot;, &quot;education&quot;, &quot;marital_status&quot;, &quot;occupation&quot;,
+                       &quot;relationship&quot;, &quot;race&quot;, &quot;gender&quot;, &quot;native_country&quot;]
+CONTINUOUS_COLUMNS = [&quot;age&quot;, &quot;education_num&quot;, &quot;capital_gain&quot;, &quot;capital_loss&quot;,
+                      &quot;hours_per_week&quot;]
+
+
+def load_df(filename):
+	with open(filename, 'r') as f:
+		df = pd.read_csv(f, names = COLUMNS, skipinitialspace=True, engine='python')
+	return df
+
+def preprocess(df):
+	df[LABEL_COLUMN] = (df['income_bracket'].apply(lambda x: &quot;&gt;50K&quot; in x)).astype(int)
+	df.pop(&quot;income_bracket&quot;)
+	y = df[LABEL_COLUMN].values
+	df.pop(LABEL_COLUMN)
+
+	# This makes One-Hot Encoding:
+	df = pd.get_dummies(df, columns=[x for x in CATEGORICAL_COLUMNS])
+	# This makes scaled:
+	df = pd.DataFrame(MinMaxScaler().fit_transform(df), columns=df.columns)
+
+	X = df.values
+	return X,y
+
+
+def main():
+	df_train = load_df('data/traindata')
+	df_test = load_df('data/testdata')
+	train_len = len(df_train)
+	df = pd.concat([df_train, df_test])
+	X, y = preprocess(df)
+	X_train = X[:train_len]
+	y_train = y[:train_len]
+	X_test = X[train_len:]
+	y_test = y[train_len:]
+
+	model = Sequential()
+	model.add(Dense(1024, input_dim=X_train.shape[1], activation='relu'))
+	model.add(Dense(1024))
+	model.add(Dense(1, activation='sigmoid'))
+	model.compile(optimizer='rmsprop',
+					loss='binary_crossentropy',
+					metrics=['accuracy'])
+
+	model.fit(X_train, y_train, nb_epoch=10, batch_size=32 )
+	loss, accuracy = model.evaluate(X_test, y_test)
+	print(&quot;&quot;)
+	print(accuracy)
+
+if (__name__=='__main__'):
+	main()
+</code></pre>
+<p>During coding, I found preprocessing is very important:</p>
+<ul>
+<li>By using <a href="http://pandas.pydata.org/pandas-docs/stable/generated/pandas.get_dummies.html">One-Hot Encoding</a>, I even don't need to treat Wide and Deep model separately. I just one-hot encode the categorical columns, and they can be feed together with continuous columns.</li>
+<li>By using <a href="http://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.MinMaxScaler.html">MaxMinScaler</a>, I can avoid the result goes to one side at all. For example, if I don't use scaler, my prediction should be all 0s or 1s, because some columns have very big numbers, the model will ignore other columns' effect.</li>
+</ul>
+<p>And thanks to sklearn and pandas, Keras don't need to do those preprocessing at all, which Tensorflow is doing these staff inside the model. I think it's better to do that before we feed the data, so it will be much clear what we are feeding to the neural network.</p>
+</div>
+        </article>
+        <section class="comments-panel" aria-label="Comments">
+            <div id="remark42"></div>
+        </section>
+    </main>
+    <footer class="footer">
+        <div class="social-links">
+            <a href="https://github.com/liusida" aria-label="GitHub" target="_blank" rel="noopener noreferrer">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+            </a>
+            <a href="https://www.alphaxiv.org/@sida-liu" aria-label="AlphaXiv" target="_blank" rel="noopener noreferrer">
+                <span class="alphaxiv-icon" aria-hidden="true">αXiv</span>
+            </a>
+            <a href="https://x.com/liusida2007" aria-label="X / Twitter" target="_blank" rel="noopener noreferrer">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+            </a>
+            <a href="https://xhslink.com/m/9s7XWUIVsQs" aria-label="Xiaohongshu" target="_blank" rel="noopener noreferrer">
+                <img src="/images/xhs-logo.png" alt="小红书" class="xhs-icon">
+            </a>
+        </div>
+        <p class="footer-note">You can pronounce my name as <em>Star</em>, since that's what it sounds in Mandarin Chinese.</p>
+    </footer>
+
+    <script>
+    function getPostSlug() {
+        var params = new URLSearchParams(window.location.search);
+        var slug = params.get('slug');
+        if (slug) return slug;
+
+        var match = window.location.pathname.match(/^\/post\/([^\/]+)\/?$/);
+        return match ? decodeURIComponent(match[1]) : '';
+    }
+
+    function trackPostView(slug, meta) {
+        var title = meta && meta.title ? meta.title : slug;
+        var path = '/post/' + encodeURIComponent(slug);
+        var attempts = 0;
+
+        function send() {
+            if (window.umami && typeof window.umami.track === 'function') {
+                window.umami.track(function(props) {
+                    return Object.assign({}, props, {
+                        url: path,
+                        title: title + ' - Sida Liu'
+                    });
+                });
+                window.umami.track('post-view', {
+                    slug: slug,
+                    title: title
+                });
+                return;
+            }
+
+            attempts += 1;
+            if (attempts < 20) {
+                window.setTimeout(send, 250);
+            }
+        }
+
+        send();
+    }
+
+    (async function() {
+        var slug = getPostSlug();
+        if (!slug) {
+            document.getElementById('post-content').textContent = 'No post specified.';
+            return;
+        }
+
+        var preEl = document.getElementById('post-content');
+        if (preEl.hasAttribute('data-prerendered')) {
+            var preAttempts = 0;
+            (function typesetPre() {
+                if (window.MathJax && typeof window.MathJax.typesetPromise === 'function') {
+                    window.MathJax.typesetPromise([preEl]);
+                    return;
+                }
+                if (++preAttempts < 40) window.setTimeout(typesetPre, 100);
+            })();
+            trackPostView(slug, { title: document.getElementById('post-title').textContent });
+            return;
+        }
+
+        var cleanPath = '/post/' + encodeURIComponent(slug);
+        if (window.location.pathname !== cleanPath) {
+            window.history.replaceState(null, '', cleanPath);
+        }
+
+        try {
+            var results = await Promise.all([
+                fetch('/data/posts.json'),
+                fetch('/posts/' + slug + '.md')
+            ]);
+            var metaRes = results[0];
+            var mdRes = results[1];
+
+            if (!mdRes.ok) {
+                document.getElementById('post-content').textContent = 'Post not found.';
+                return;
+            }
+
+            var posts = await metaRes.json();
+            var md = await mdRes.text();
+            var meta = posts.find(function(p) { return p.slug === slug; });
+
+            if (meta) {
+                document.getElementById('post-title').textContent = meta.title;
+                var d = new Date(meta.date + 'T00:00:00');
+                var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+                document.getElementById('post-date').textContent = months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
+                document.title = meta.title + ' \u2014 Sida Liu';
+            }
+
+            var contentEl = document.getElementById('post-content');
+            contentEl.innerHTML = marked.parse(md);
+
+            var mathAttempts = 0;
+            function typesetPostMath() {
+                if (window.MathJax && typeof window.MathJax.typesetPromise === 'function') {
+                    window.MathJax.typesetPromise([contentEl]);
+                    return;
+                }
+                mathAttempts += 1;
+                if (mathAttempts < 40) {
+                    window.setTimeout(typesetPostMath, 100);
+                }
+            }
+            typesetPostMath();
+            trackPostView(slug, meta);
+        } catch (e) {
+            document.getElementById('post-content').textContent = 'Error loading post.';
+        }
+    })();
+    </script>
+    <script>
+      var remark_config = {
+        host: "https://remark.liusida.com",
+        site_id: "liusida.com",
+        url: "https://liusida.com/post/" + encodeURIComponent(getPostSlug())
+      };
+    </script>
+    <script src="https://remark.liusida.com/web/embed.js"></script>    
+</body>
+</html>

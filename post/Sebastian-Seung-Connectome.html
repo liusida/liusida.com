@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>More About the Brain, Reading Sebastian Seung&#x27;s &#x27;Connectome — Sida Liu</title>
+    <meta name="description" content="This book has expanded my understanding of the concept of the connectome, the structure of our brains, and it has also introduced me to a variety of intriguing concepts.">
+    <link rel="canonical" href="https://liusida.com/post/Sebastian-Seung-Connectome">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="More About the Brain, Reading Sebastian Seung&#x27;s &#x27;Connectome">
+    <meta property="og:description" content="This book has expanded my understanding of the concept of the connectome, the structure of our brains, and it has also introduced me to a variety of intriguing concepts.">
+    <meta property="og:url" content="https://liusida.com/post/Sebastian-Seung-Connectome">
+    <meta property="article:published_time" content="2023-09-03">
+    <link rel="icon" href="/favicon.ico">
+    <link rel="stylesheet" href="/style.css">
+    <script>var t=localStorage.getItem('theme');if(t)document.documentElement.setAttribute('data-theme',t);</script>
+    <script src="/lib/marked.min.js"></script>
+    <script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']],
+          displayMath: [['$$', '$$'], ['\\[', '\\]']]
+        },
+        svg: { fontCache: 'global' }
+      };
+    </script>
+    <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+    <script async defer data-website-id="b9e7a81c-fb4b-4238-96f6-2bdcb80dde85" data-auto-track="false" src="https://analytics.liusida.com/umami/script.js"></script>
+</head>
+<body>
+
+    <nav class="site-nav">
+        <a href="/" class="site-nav-home">Sida Liu</a>
+        <div class="site-nav-links">
+            <a href="/research-notes.html">Research Notes</a>
+            <a href="/writing.html">Writing</a>
+            <a href="/projects.html">Projects</a>
+            <a href="/journey.html">Journey</a>
+            <a href="/bookshelf.html">Bookshelf</a>
+        </div>
+    </nav>
+
+    <main>
+        <article class="post">
+            <header class="post-header">
+                <h1 id="post-title">More About the Brain, Reading Sebastian Seung&#x27;s &#x27;Connectome</h1>
+                <time id="post-date" datetime="2023-09-03">Sep 3, 2023</time>
+            </header>
+            <div id="post-content" data-prerendered>
+<p>I’ve just finished reading Sebastian Seung’s book “Connectome: How the Brain’s Wiring Makes Us Who We Are,” which introduced me to the concept of neuronal connectomics.</p>
+<p>We all agree that the brain is a network with many nodes connected by numerous connections. Olaf Sporns proposed the term “Connectome” to describe this brain network. We naturally think of neurons as the nodes and synapses as the edges. Seung refers to this as the “Neuronal Connectome.” However, this network contains too many nodes and edges to analyze easily. To address this complexity, Sporns simplifies it. Many complex networks have clusters of nodes. If we zoom out a bit, these clusters can be treated as larger nodes, simplifying the network. Seung refers to this as the “Regional Connectome.” A further simplification groups nodes by neuron types, which Seung calls the “Neuron Type Connectome.” He argues that although simplified versions are useful, studying the original, the Neuronal Connectome, is essential for understanding autobiographical memory and other unique aspects of our personal identities.</p>
+<p>Personally, I would like to study the simplified version–the Regional Connectome–first. According to Jeff Hawkins’s “A Thousand Brains,” which I <a href="https://liusida.github.io/reading/2023/05/15/Hawkins-Thousand-Brains-book/">read earlier</a>, there is a natural cluster in our brains called the cortical column. A region, as divided by Brodmann, usually contains several similar cortical columns. The pyramidal neuron in a cortical column extends its axons into the white matter, connecting to another cortical column in a different region. These axons often bundle together to form fiber tracts, also known as white-matter pathways. Understanding these could reveal much about personality, mathematical ability, autism, and other general features. However, for deeper insights, neuronal connectomics would provide the details within a cortical column and offer more fundamental explanations about the brain. This is the inevitable future of the field.</p>
+<p>Seung measures the Neuronal Connectome using Serial Electron Microscopy (SEM). This involves hardening the tissue with epoxy resin (plastination), slicing it into very thin pieces, and then photographing these slices with an electron microscope. A computer then reconstructs the three-dimensional structures from these images.</p>
+<p>Seung’s approach diverges from traditional hypothesis-driven scientific methods. He describes his approach as data-driven, hypothesis-free, inductive research: (1) collect a vast amount of data, (2) analyze it to detect patterns, and (3) formulate hypotheses based on these patterns. I believe this method is as valid as hypothesis-driven research because it can generate hypotheses that guide future inquiry.</p>
+<p>In 1986, the connectome of the hermaphroditic C. elegans was mapped, featuring exactly 302 neurons and approximately 7,000 chemical synapses, along with some gap junctions and neuromuscular junctions. This work on C. elegans serves as a stepping stone toward understanding the human connectome, which is orders of magnitude more complex, with an estimated 100 billion neurons and synapses numbering in the order of 100 trillion to 1,000 trillion.</p>
+<p>The challenges in capturing the human connectome are monumental. Yet, I wish Seung the best of luck–not only in obtaining this complex data but also in analyzing it. Advances in large language models (LLMs) offer promising methods for automatically analyzing one-dimensional data like text, genes, and protein sequences. However, new breakthroughs in fields dealing with graph data are needed to analyze complex networks like the human connectome effectively. At present, Graph Neural Networks (GNNs) are not powerful enough for this task.</p>
+<p>Although we are far from having a complete human connectome, Seung’s book has nonetheless introduced many intriguing concepts to me. One of my favorites is Seung’s metaphor comparing the brain’s structure (the synapses connecting neurons) to a riverbed and the brain’s activity (consciousness) to the water flowing through it. The structure dictates the flow of activity, and the activity reshapes the structure. This led me to appreciate the dual nature of brain study: one can examine living brains to understand moment-to-moment dynamics using techniques like fMRI, or focus on the more stable structural aspects found in deceased brains.</p>
+<p>Understanding both the dynamic activity and the stable structure allows for a more comprehensive explanation of phenomena like short-term and long-term memory. For example, when an assembly of neurons spikes, this activity can represent transient short-term memory. The repetition of these spikes can lead to changes in the synapses, perhaps through Hebbian mechanisms (“fire together, wire together”), and these stable changes can be considered long-term memory.</p>
+<p>Different types of structures could exist: neuron assemblies and synaptic chains. A neuron assembly could correspond to a concept, a fact, a feeling, or a specific reaction–forming our semantic or emotional memory. A chain of these assemblies could create a synaptic chain, corresponding to a sequence of concepts or actions, which would be our episodic or procedural memory. Both are forms of long-term memory, as shown in the following diagram.</p>
+<p><img src="/assets/images/2023-09-03-long-term-memory.png" alt="Long-term Memory" /></p>
+<p>Source: <a href="https://www.simplypsychology.org/long-term-memory.html">https://www.simplypsychology.org/long-term-memory.html</a></p>
+<p>Understanding this also helps us see why richer information is easier to remember. For instance, when memorizing a list of random items, envisioning walking through a series of rooms with these items placed in different locations increases the redundancy of each item’s representation, corresponding to larger assemblies, thus the connections between those larger assemblies are easier to find and strengthen, making it easier to remember.</p>
+<p>Another fascinating concept is Neural Darwinism, which posits that synapses are formed randomly and continuously. These synapses then either strengthen through use or weaken and eventually disappear through disuse, a mechanism that could be regulated by Hebbian rules. Understanding this process has significant implications, as it could lead to molecular interventions that promote learning–or even forgetting.</p>
+<p><img src="/assets/images/2023-09-03-synaptic-density.png" alt="Synaptic Density" /></p>
+<p>Source: <a href="https://www.sciencedirect.com/science/article/pii/S000632232201366X">https://www.sciencedirect.com/science/article/pii/S000632232201366X</a></p>
+<p>This figure is from a study of schizophrenia, but let’s focus on the blue area indicating ‘Normal Synaptic Density.’ As we can see, the phase of synaptogenesis leaves a baby with a high level of synaptic density, which later undergoes significant reduction during synaptic pruning. According to Neural Darwinism, this process allows a baby’s brain to maximize its learning potential at a young age while also shedding the unused synapses.</p>
+<p>In conclusion, this book has expanded my understanding of the concept of connectome, the structure of our brains, and it has also introduced me to a variety of intriguing concepts. I look forward to exploring them in greater depth in the future.</p>
+<p>Any feedback? We can discuss it under <a href="https://twitter.com/liusida2007/status/1698272066603196571">this Tweet. <i class="fab fa-twitter"></i></a></p>
+</div>
+        </article>
+        <section class="comments-panel" aria-label="Comments">
+            <div id="remark42"></div>
+        </section>
+    </main>
+    <footer class="footer">
+        <div class="social-links">
+            <a href="https://github.com/liusida" aria-label="GitHub" target="_blank" rel="noopener noreferrer">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+            </a>
+            <a href="https://www.alphaxiv.org/@sida-liu" aria-label="AlphaXiv" target="_blank" rel="noopener noreferrer">
+                <span class="alphaxiv-icon" aria-hidden="true">αXiv</span>
+            </a>
+            <a href="https://x.com/liusida2007" aria-label="X / Twitter" target="_blank" rel="noopener noreferrer">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+            </a>
+            <a href="https://xhslink.com/m/9s7XWUIVsQs" aria-label="Xiaohongshu" target="_blank" rel="noopener noreferrer">
+                <img src="/images/xhs-logo.png" alt="小红书" class="xhs-icon">
+            </a>
+        </div>
+        <p class="footer-note">You can pronounce my name as <em>Star</em>, since that's what it sounds in Mandarin Chinese.</p>
+    </footer>
+
+    <script>
+    function getPostSlug() {
+        var params = new URLSearchParams(window.location.search);
+        var slug = params.get('slug');
+        if (slug) return slug;
+
+        var match = window.location.pathname.match(/^\/post\/([^\/]+)\/?$/);
+        return match ? decodeURIComponent(match[1]) : '';
+    }
+
+    function trackPostView(slug, meta) {
+        var title = meta && meta.title ? meta.title : slug;
+        var path = '/post/' + encodeURIComponent(slug);
+        var attempts = 0;
+
+        function send() {
+            if (window.umami && typeof window.umami.track === 'function') {
+                window.umami.track(function(props) {
+                    return Object.assign({}, props, {
+                        url: path,
+                        title: title + ' - Sida Liu'
+                    });
+                });
+                window.umami.track('post-view', {
+                    slug: slug,
+                    title: title
+                });
+                return;
+            }
+
+            attempts += 1;
+            if (attempts < 20) {
+                window.setTimeout(send, 250);
+            }
+        }
+
+        send();
+    }
+
+    (async function() {
+        var slug = getPostSlug();
+        if (!slug) {
+            document.getElementById('post-content').textContent = 'No post specified.';
+            return;
+        }
+
+        var preEl = document.getElementById('post-content');
+        if (preEl.hasAttribute('data-prerendered')) {
+            var preAttempts = 0;
+            (function typesetPre() {
+                if (window.MathJax && typeof window.MathJax.typesetPromise === 'function') {
+                    window.MathJax.typesetPromise([preEl]);
+                    return;
+                }
+                if (++preAttempts < 40) window.setTimeout(typesetPre, 100);
+            })();
+            trackPostView(slug, { title: document.getElementById('post-title').textContent });
+            return;
+        }
+
+        var cleanPath = '/post/' + encodeURIComponent(slug);
+        if (window.location.pathname !== cleanPath) {
+            window.history.replaceState(null, '', cleanPath);
+        }
+
+        try {
+            var results = await Promise.all([
+                fetch('/data/posts.json'),
+                fetch('/posts/' + slug + '.md')
+            ]);
+            var metaRes = results[0];
+            var mdRes = results[1];
+
+            if (!mdRes.ok) {
+                document.getElementById('post-content').textContent = 'Post not found.';
+                return;
+            }
+
+            var posts = await metaRes.json();
+            var md = await mdRes.text();
+            var meta = posts.find(function(p) { return p.slug === slug; });
+
+            if (meta) {
+                document.getElementById('post-title').textContent = meta.title;
+                var d = new Date(meta.date + 'T00:00:00');
+                var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+                document.getElementById('post-date').textContent = months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
+                document.title = meta.title + ' \u2014 Sida Liu';
+            }
+
+            var contentEl = document.getElementById('post-content');
+            contentEl.innerHTML = marked.parse(md);
+
+            var mathAttempts = 0;
+            function typesetPostMath() {
+                if (window.MathJax && typeof window.MathJax.typesetPromise === 'function') {
+                    window.MathJax.typesetPromise([contentEl]);
+                    return;
+                }
+                mathAttempts += 1;
+                if (mathAttempts < 40) {
+                    window.setTimeout(typesetPostMath, 100);
+                }
+            }
+            typesetPostMath();
+            trackPostView(slug, meta);
+        } catch (e) {
+            document.getElementById('post-content').textContent = 'Error loading post.';
+        }
+    })();
+    </script>
+    <script>
+      var remark_config = {
+        host: "https://remark.liusida.com",
+        site_id: "liusida.com",
+        url: "https://liusida.com/post/" + encodeURIComponent(getPostSlug())
+      };
+    </script>
+    <script src="https://remark.liusida.com/web/embed.js"></script>    
+</body>
+</html>

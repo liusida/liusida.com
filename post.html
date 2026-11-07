@@ -109,6 +109,20 @@
             return;
         }
 
+        var preEl = document.getElementById('post-content');
+        if (preEl.hasAttribute('data-prerendered')) {
+            var preAttempts = 0;
+            (function typesetPre() {
+                if (window.MathJax && typeof window.MathJax.typesetPromise === 'function') {
+                    window.MathJax.typesetPromise([preEl]);
+                    return;
+                }
+                if (++preAttempts < 40) window.setTimeout(typesetPre, 100);
+            })();
+            trackPostView(slug, { title: document.getElementById('post-title').textContent });
+            return;
+        }
+
         var cleanPath = '/post/' + encodeURIComponent(slug);
         if (window.location.pathname !== cleanPath) {
             window.history.replaceState(null, '', cleanPath);

@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>How &quot;System 2&quot; Is Born — Sida Liu</title>
+    <meta name="description" content="Rather than treating System 1 and System 2 as distinct cognitive systems, I argue that &#x27;System 2&#x27; describes a behavioral profile associated with early-stage use of structured mental tools.">
+    <link rel="canonical" href="https://liusida.com/post/how-system-2-is-born">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="How &quot;System 2&quot; Is Born">
+    <meta property="og:description" content="Rather than treating System 1 and System 2 as distinct cognitive systems, I argue that &#x27;System 2&#x27; describes a behavioral profile associated with early-stage use of structured mental tools.">
+    <meta property="og:url" content="https://liusida.com/post/how-system-2-is-born">
+    <meta property="article:published_time" content="2025-12-22">
+    <link rel="icon" href="/favicon.ico">
+    <link rel="stylesheet" href="/style.css">
+    <script>var t=localStorage.getItem('theme');if(t)document.documentElement.setAttribute('data-theme',t);</script>
+    <script src="/lib/marked.min.js"></script>
+    <script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']],
+          displayMath: [['$$', '$$'], ['\\[', '\\]']]
+        },
+        svg: { fontCache: 'global' }
+      };
+    </script>
+    <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+    <script async defer data-website-id="b9e7a81c-fb4b-4238-96f6-2bdcb80dde85" data-auto-track="false" src="https://analytics.liusida.com/umami/script.js"></script>
+</head>
+<body>
+
+    <nav class="site-nav">
+        <a href="/" class="site-nav-home">Sida Liu</a>
+        <div class="site-nav-links">
+            <a href="/research-notes.html">Research Notes</a>
+            <a href="/writing.html">Writing</a>
+            <a href="/projects.html">Projects</a>
+            <a href="/journey.html">Journey</a>
+            <a href="/bookshelf.html">Bookshelf</a>
+        </div>
+    </nav>
+
+    <main>
+        <article class="post">
+            <header class="post-header">
+                <h1 id="post-title">How &quot;System 2&quot; Is Born</h1>
+                <time id="post-date" datetime="2025-12-22">Dec 22, 2025</time>
+            </header>
+            <div id="post-content" data-prerendered>
+<h2><strong>0. TL;DR</strong></h2>
+<p>Rather than treating System 1 and System 2 as distinct cognitive systems, I argue that “System 2” describes a behavioral profile associated with early-stage use of structured mental tools. I suggest this reframing may be useful for thinking about how reasoning-like behaviors emerge in language models during training.</p>
+<h2><strong>1. The Classic Two-System View</strong></h2>
+<p>Human cognition is complex, layered, and difficult to observe directly. To make sense of this complexity, psychologists have proposed simplified models that capture recurring patterns in how minds behave. One of the most influential of these is the distinction between <strong>System 1</strong> and <strong>System 2</strong>, popularized by Daniel Kahneman in <em><a href="https://en.wikipedia.org/wiki/Thinking,_Fast_and_Slow">Thinking, Fast and Slow</a></em>.</p>
+<p>In this framework, <strong>System 1</strong> refers to cognitive processes that are fast, automatic, and intuitive. These include perception, pattern recognition, emotional responses, and well-practiced skills. System 1 operates with little conscious effort and often outside awareness.</p>
+<p><strong>System 2</strong>, by contrast, refers to processes that are slower, deliberate, and effortful. It is associated with conscious reasoning, rule-following, mental computation, and self-control. Tasks such as mental arithmetic, logical checking, and overriding an initial impulse are typically classified as System 2 activities.</p>
+<p>Classic demonstrations support this distinction. In the Stroop task<a href="#c6ed2955-a7dd-4c22-8fa7-c25c90f6082b">1</a>, reading a word happens automatically while naming the ink color requires effortful control. In the bat-and-ball problem<a href="#c0dbb351-99d0-4c33-8d02-48be36f121b6">2</a>, an intuitive answer appears quickly, but careful reasoning is required to reach the correct one. Across many such cases, the model captures a real and useful regularity: some cognition feels fast and effortless, while other cognition feels slow and demanding.</p>
+<p>Importantly, this model is not meant to describe the full computational structure of the mind. It is an abstraction — a way of grouping observable properties of behavior and experience. Its usefulness lies in description, not in claiming that the mind literally contains two neatly separated machines.</p>
+<h2><strong>2. A Friction in the Story: When Automaticity Changes Sides</strong></h2>
+<p>Because System 1 and System 2 are defined by properties such as speed, effort, and control, the model implicitly assumes that these properties are relatively stable. But this assumption becomes less clear once learning and training are taken seriously.</p>
+<p>Consider again the Stroop task. In its canonical form, reading is fast and automatic, while naming the ink color is slow and effortful. This cleanly maps reading to System 1 and color naming to System 2.</p>
+<p>But with practice, performance changes. Reaction times improve, errors decrease, and the subjective feeling of effort diminishes. The task does not become effortless overnight, but the boundary between automatic and controlled processing clearly shifts.</p>
+<p>Now consider a more extreme case. Imagine a person who can barely read but has spent years naming colors for a living. For this person, color naming is fast, fluent, and automatic, while reading remains slow and demanding.</p>
+<p>If System 1 and System 2 are defined by automaticity and effort, then in this case color naming fits System 1 better than reading. If, on the other hand, reading must always be classified as System 1 regardless of experience, then the model stops tracking its own defining features.</p>
+<p>This creates a friction. The distinction between System 1 and System 2 appears to depend not only on the type of task, but on how that task is solved.</p>
+<h2><strong>3. How System 2 Is Born: Thinking With Tools</strong></h2>
+<p>The distinction between System 1 and System 2 is often presented as if two cognitive systems are simply “there” from the start. But a more plausible story is developmental.</p>
+<p>A mind begins with many fast, intuitive processes: perception, association, pattern recognition, and learned habits. These processes correspond well to what we call System 1. They are adaptive, efficient, and largely opaque to introspection.</p>
+<p>At some point, however, the mind encounters <strong>mental tools</strong>. These include symbols, written language, number systems, diagrams, logical rules, and conceptual frameworks. Most of these tools are not invented by the individual; they are cultural artifacts accumulated over long periods and learned through instruction and practice.</p>
+<p>Crucially, mental tools are not just aids for expressing thought. They perform computation themselves. They provide structured representations and rule-governed transformations that can be relied upon instead of being continuously simulated by neural processes alone. Written arithmetic, for example, computes relationships that would otherwise have to be maintained internally. Diagrams encode constraints. Formal rules enforce consistency.</p>
+<p>When a mind begins to use such a tool, cognition becomes coupled to an explicit computational structure. This coupling enables more complex reasoning, but it also introduces costs. The mind must coordinate perception, memory, attention, and action with the tool’s structure. This coordination is slow, effortful, and fragile—especially early on.</p>
+<p>This subjective profile is what we label <strong>System 2</strong>.</p>
+<p>On this view, System 2 is not a fundamentally separate cognitive engine. It is a mode of cognition that emerges when intuitive processes operate through unfamiliar representational and computational structures. The effort is real, but it reflects learning and coordination costs, not the operation of a different cognitive engine.</p>
+<p>The System 1 / System 2 model remains useful here—not as a map of internal architecture, but as a description of how thinking feels and behaves at different stages of tool use.</p>
+<h2><strong>4. How System 2 Becomes Less Effortful</strong></h2>
+<p>With practice, skills internalize, and the relationship between cognition and mental tools changes.</p>
+<p>New representations stabilize. Operations reorganize. Intermediate steps are fused or bypassed entirely. What once required careful, explicit coordination becomes fast and automatic. The same reasoning process that initially felt slow and effortful now feels intuitive.</p>
+<p>Nothing fundamental has switched off. The underlying computational machinery may be just as complex as before. What changes is the structure of computation and representation itself. New abstractions reorganize how problems are solved, and what we experience as fluency emerges as a consequence of that reorganization.</p>
+<p>As a result, the boundary between System 1 and System 2 shifts. What was once a System 2 activity becomes indistinguishable from System 1 behavior—not because a system has been deactivated, but because the structure of the computation has changed.</p>
+<p>The process also runs in reverse. Intuitive judgments can be slowed down, externalized, and inspected using tools such as writing, diagrams, or formal reasoning. In doing so, fast intuition is transformed into deliberate thought. System 1 becomes System 2 when cognition is re-coupled to explicit structure.</p>
+<p>From this perspective, System 1 and System 2 are best understood as descriptive categories. They capture real regularities in speed, effort, and control, but those regularities emerge from how cognition is structured, trained, and coupled to tools.</p>
+<h2><strong>5. Why I Am Thinking About System 2 This Way</strong></h2>
+<p>The motivation for this reframing does not come primarily from psychology. It comes from looking closely at neural network training.</p>
+<p>In recent years, large language models have shown increasingly complex behaviors: multi-step reasoning, tool use, self-correction, and abstraction. This has led many people to ask where such abilities “come from,” and whether they require something fundamentally new. When framed in human terms, these questions are often translated into the language of System 1 and System 2.</p>
+<p>That is why I use System 2 as a proxy. Not because I believe there is literally a System 2 module waiting to be discovered in either brains or models, but because the concept captures a familiar cluster of behaviors: effortful thinking, explicit structure, and methodical problem-solving. By examining how these behaviors emerge through training—rather than assuming they require a separate system—we may get closer to understanding when and why reasoning appears at all.</p>
+<p>On this view, reasoning is not a privileged faculty reserved for human minds. It is a set of <strong>mental tools</strong>—invented by humans over time for structured computation and representation. Any system that can learn to use such tools, apply them to novel problems, and refine them through practice should be treated as a system that can reason.</p>
+<p>The hope, then, is not to find a magical moment when System 2 “turns on,” but to understand the conditions under which different structured mental tools are learned, used, and eventually become fluent.</p>
+</div>
+        </article>
+        <section class="comments-panel" aria-label="Comments">
+            <div id="remark42"></div>
+        </section>
+    </main>
+    <footer class="footer">
+        <div class="social-links">
+            <a href="https://github.com/liusida" aria-label="GitHub" target="_blank" rel="noopener noreferrer">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+            </a>
+            <a href="https://www.alphaxiv.org/@sida-liu" aria-label="AlphaXiv" target="_blank" rel="noopener noreferrer">
+                <span class="alphaxiv-icon" aria-hidden="true">αXiv</span>
+            </a>
+            <a href="https://x.com/liusida2007" aria-label="X / Twitter" target="_blank" rel="noopener noreferrer">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+            </a>
+            <a href="https://xhslink.com/m/9s7XWUIVsQs" aria-label="Xiaohongshu" target="_blank" rel="noopener noreferrer">
+                <img src="/images/xhs-logo.png" alt="小红书" class="xhs-icon">
+            </a>
+        </div>
+        <p class="footer-note">You can pronounce my name as <em>Star</em>, since that's what it sounds in Mandarin Chinese.</p>
+    </footer>
+
+    <script>
+    function getPostSlug() {
+        var params = new URLSearchParams(window.location.search);
+        var slug = params.get('slug');
+        if (slug) return slug;
+
+        var match = window.location.pathname.match(/^\/post\/([^\/]+)\/?$/);
+        return match ? decodeURIComponent(match[1]) : '';
+    }
+
+    function trackPostView(slug, meta) {
+        var title = meta && meta.title ? meta.title : slug;
+        var path = '/post/' + encodeURIComponent(slug);
+        var attempts = 0;
+
+        function send() {
+            if (window.umami && typeof window.umami.track === 'function') {
+                window.umami.track(function(props) {
+                    return Object.assign({}, props, {
+                        url: path,
+                        title: title + ' - Sida Liu'
+                    });
+                });
+                window.umami.track('post-view', {
+                    slug: slug,
+                    title: title
+                });
+                return;
+            }
+
+            attempts += 1;
+            if (attempts < 20) {
+                window.setTimeout(send, 250);
+            }
+        }
+
+        send();
+    }
+
+    (async function() {
+        var slug = getPostSlug();
+        if (!slug) {
+            document.getElementById('post-content').textContent = 'No post specified.';
+            return;
+        }
+
+        var preEl = document.getElementById('post-content');
+        if (preEl.hasAttribute('data-prerendered')) {
+            var preAttempts = 0;
+            (function typesetPre() {
+                if (window.MathJax && typeof window.MathJax.typesetPromise === 'function') {
+                    window.MathJax.typesetPromise([preEl]);
+                    return;
+                }
+                if (++preAttempts < 40) window.setTimeout(typesetPre, 100);
+            })();
+            trackPostView(slug, { title: document.getElementById('post-title').textContent });
+            return;
+        }
+
+        var cleanPath = '/post/' + encodeURIComponent(slug);
+        if (window.location.pathname !== cleanPath) {
+            window.history.replaceState(null, '', cleanPath);
+        }
+
+        try {
+            var results = await Promise.all([
+                fetch('/data/posts.json'),
+                fetch('/posts/' + slug + '.md')
+            ]);
+            var metaRes = results[0];
+            var mdRes = results[1];
+
+            if (!mdRes.ok) {
+                document.getElementById('post-content').textContent = 'Post not found.';
+                return;
+            }
+
+            var posts = await metaRes.json();
+            var md = await mdRes.text();
+            var meta = posts.find(function(p) { return p.slug === slug; });
+
+            if (meta) {
+                document.getElementById('post-title').textContent = meta.title;
+                var d = new Date(meta.date + 'T00:00:00');
+                var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+                document.getElementById('post-date').textContent = months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
+                document.title = meta.title + ' \u2014 Sida Liu';
+            }
+
+            var contentEl = document.getElementById('post-content');
+            contentEl.innerHTML = marked.parse(md);
+
+            var mathAttempts = 0;
+            function typesetPostMath() {
+                if (window.MathJax && typeof window.MathJax.typesetPromise === 'function') {
+                    window.MathJax.typesetPromise([contentEl]);
+                    return;
+                }
+                mathAttempts += 1;
+                if (mathAttempts < 40) {
+                    window.setTimeout(typesetPostMath, 100);
+                }
+            }
+            typesetPostMath();
+            trackPostView(slug, meta);
+        } catch (e) {
+            document.getElementById('post-content').textContent = 'Error loading post.';
+        }
+    })();
+    </script>
+    <script>
+      var remark_config = {
+        host: "https://remark.liusida.com",
+        site_id: "liusida.com",
+        url: "https://liusida.com/post/" + encodeURIComponent(getPostSlug())
+      };
+    </script>
+    <script src="https://remark.liusida.com/web/embed.js"></script>    
+</body>
+</html>

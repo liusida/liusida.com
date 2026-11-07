@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>学习Tensorflow的LSTM的RNN例子 — Sida Liu</title>
+    <meta name="description" content="">
+    <link rel="canonical" href="https://liusida.com/post/study-lstm">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="学习Tensorflow的LSTM的RNN例子">
+    <meta property="og:description" content="">
+    <meta property="og:url" content="https://liusida.com/post/study-lstm">
+    <meta property="article:published_time" content="2016-11-16">
+    <link rel="icon" href="/favicon.ico">
+    <link rel="stylesheet" href="/style.css">
+    <script>var t=localStorage.getItem('theme');if(t)document.documentElement.setAttribute('data-theme',t);</script>
+    <script src="/lib/marked.min.js"></script>
+    <script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']],
+          displayMath: [['$$', '$$'], ['\\[', '\\]']]
+        },
+        svg: { fontCache: 'global' }
+      };
+    </script>
+    <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+    <script async defer data-website-id="b9e7a81c-fb4b-4238-96f6-2bdcb80dde85" data-auto-track="false" src="https://analytics.liusida.com/umami/script.js"></script>
+</head>
+<body>
+
+    <nav class="site-nav">
+        <a href="/" class="site-nav-home">Sida Liu</a>
+        <div class="site-nav-links">
+            <a href="/research-notes.html">Research Notes</a>
+            <a href="/writing.html">Writing</a>
+            <a href="/projects.html">Projects</a>
+            <a href="/journey.html">Journey</a>
+            <a href="/bookshelf.html">Bookshelf</a>
+        </div>
+    </nav>
+
+    <main>
+        <article class="post">
+            <header class="post-header">
+                <h1 id="post-title">学习Tensorflow的LSTM的RNN例子</h1>
+                <time id="post-date" datetime="2016-11-16">Nov 16, 2016</time>
+            </header>
+            <div id="post-content" data-prerendered>
+<p>前几天写了<a href="https://liusida.github.io/2016/11/14/study-embeddings/">学习Embeddings的例子</a>，因为琢磨了各个细节，自己也觉得受益匪浅。于是，开始写下一个LSTM的教程吧。</p>
+<p>还是<a href="https://classroom.udacity.com/courses/ud730/lessons/6378983156/concepts/63770919610923">Udacity上那个课程</a>。</p>
+<p><a href="https://github.com/tensorflow/tensorflow/blob/master/tensorflow/examples/udacity/6_lstm.ipynb">源码也在Github上</a>。</p>
+<p>RNN是一个<strong>非常棒</strong>的技术，可能它已经向我们揭示了“活”的意义。RNN我已经尝试学习了几次，包括前面我<a href="https://liusida.github.io/2016/11/04/rnn-implementation/">这篇笔记</a>，所以就直接进入代码阅读吧。</p>
+<h2>读例子程序：</h2>
+<h3>1. 引入库文件</h3>
+<pre><code class="language-python"># These are all the modules we'll be using later. Make sure you can import them
+# before proceeding further.
+from __future__ import print_function
+import os
+import numpy as np
+import random
+import string
+import tensorflow as tf
+import zipfile
+from six.moves import range
+from six.moves.urllib.request import urlretrieve
+</code></pre>
+<h3>2. 下载数据</h3>
+<p>然后下载数据，如果<a href="https://liusida.github.io/2016/11/04/rnn-implementation/">前面</a>已经下载过，那直接把text8.zip拷过来就可以用。</p>
+<pre><code class="language-python">url = 'http://mattmahoney.net/dc/'
+
+def maybe_download(filename, expected_bytes):
+  &quot;&quot;&quot;Download a file if not present, and make sure it's the right size.&quot;&quot;&quot;
+  if not os.path.exists(filename):
+    filename, _ = urlretrieve(url + filename, filename)
+  statinfo = os.stat(filename)
+  if statinfo.st_size == expected_bytes:
+    print('Found and verified %s' % filename)
+  else:
+    print(statinfo.st_size)
+    raise Exception(
+      'Failed to verify ' + filename + '. Can you get to it with a browser?')
+  return filename
+
+filename = maybe_download('text8.zip', 31344016)
+</code></pre>
+<h3>3. 读入文本</h3>
+<p>读文件稍微有些不一样，不是处理成list，而是直接读成一个字符串，因为后面用到的就是串数据。</p>
+<pre><code class="language-python">def read_data(filename):
+  f = zipfile.ZipFile(filename)
+  for name in f.namelist():
+    return tf.compat.as_str(f.read(name))
+  f.close()
+
+text = read_data(filename)
+print('Data size %d' % len(text))
+</code></pre>
+<h3>4. 生成训练数据集函数</h3>
+<p>切割一下，留1000个字符做检验，其他99999000个字符拿来训练。</p>
+<pre><code class="language-python">valid_size = 1000
+valid_text = text[:valid_size]
+train_text = text[valid_size:]
+train_size = len(train_text)
+print(train_size, train_text[:64])
+print(valid_size, valid_text[:64])
+</code></pre>
+<h3>5. 两个工具函数</h3>
+<p>建立两个函数<code>char2id</code>和<code>id2char</code>，用来把字符对应成数字。</p>
+<p>本程序只考虑26个字母外加1个空格字符，其他字符都当做空格来对待。所以可以用两个函数，通过ascii码加减，直接算出对应的数值或字符。</p>
+<pre><code class="language-python">vocabulary_size = len(string.ascii_lowercase) + 1 # [a-z] + ' '
+first_letter = ord(string.ascii_lowercase[0])
+
+def char2id(char):
+  if char in string.ascii_lowercase:
+    return ord(char) - first_letter + 1
+  elif char == ' ':
+    return 0
+  else:
+    print('Unexpected character: %s' % char)
+    return 0
+
+def id2char(dictid):
+  if dictid &gt; 0:
+    return chr(dictid + first_letter - 1)
+  else:
+    return ' '
+
+print(char2id('a'), char2id('z'), char2id(' '), char2id('ï'))
+print(id2char(1), id2char(26), id2char(0))
+</code></pre>
+<h3>6. 生成训练数据集函数</h3>
+<p>这次 <code>BatchGenerator</code> 做的比前两天的那个要认真了，用了成员变量来记录位置，而不是用全局变量。</p>
+<p>用 <code>BatchGenerator.next()</code> 方法，可以获取一批子字符串用于训练。</p>
+<p><code>batch_size</code> 是每批几串字符串，<code>num_unrollings</code> 是每串子字符串的长度（实际上字符串开头还加了上一次获取的最后一个字符，所以实际上字符串长度要比 <code>num_unrollings</code> 多一个）。</p>
+<pre><code class="language-python">batch_size=64
+num_unrollings=10
+
+class BatchGenerator(object):
+  def __init__(self, text, batch_size, num_unrollings):
+    self._text = text
+    self._text_size = len(text)
+    self._batch_size = batch_size
+    self._num_unrollings = num_unrollings
+    segment = self._text_size // batch_size
+    self._cursor = [ offset * segment for offset in range(batch_size)]
+    self._last_batch = self._next_batch()
+
+  def _next_batch(self):
+    &quot;&quot;&quot;Generate a single batch from the current cursor position in the data.&quot;&quot;&quot;
+    batch = np.zeros(shape=(self._batch_size, vocabulary_size), dtype=np.float)
+    for b in range(self._batch_size):
+      batch[b, char2id(self._text[self._cursor[b]])] = 1.0
+      self._cursor[b] = (self._cursor[b] + 1) % self._text_size
+    return batch
+
+  def next(self):
+    &quot;&quot;&quot;Generate the next array of batches from the data. The array consists of
+    the last batch of the previous array, followed by num_unrollings new ones.
+    &quot;&quot;&quot;
+    batches = [self._last_batch]
+    for step in range(self._num_unrollings):
+      batches.append(self._next_batch())
+    self._last_batch = batches[-1]
+    return batches
+</code></pre>
+<p>真不愧是优秀程序员写的代码，这个函数写的又让我学习了！</p>
+<p>它在初始化的时候先根据 <code>batch_size</code> 把段分好，然后设立一组游标 <code>_cursor</code> ，是一组哦，不是一个哦！然后定义好 <code>_last_batch</code> 看或许到哪了。</p>
+<p>然后获取需要的字符串的时候，是一批一批的获取各个字符。</p>
+<p>这样做，就可以针对整段字符串均匀的取样，从而避免某些地方学的太细，某些地方又没有学到。</p>
+<p>值得注意的是，在RNN准备数据的时候，所喂数据的结构是很容易搞错的。在前面博客中，也有很多同学对于他使用 <code>transpose</code> 的意义没法理解。这里需要详细记录一下。</p>
+<p><code>BatchGenerator.next()</code> 返回的数据格式，是一个list，list的长度是 <code>num_unrollings+1</code>，每一个元素，都是一个(<code>batch_size</code>,27)的array，27是 <code>vocabulary_size</code>，一个27维向量代表一个字符，是one-hot encoding的格式。</p>
+<p>所以，<strong>喂这一批数据进神经网络的时候，理论上是先进去一批的首字符，然后再进去同一批的第二个字符，然后再进去同一批的第三个字符...</strong></p>
+<p>也就是说，下图才是真正的RNN的结构，我们要做的，是按照顺序一个一个的按顺序把东西喂进去。这个图，我看到名字叫 <code>RNN-rolled</code>：</p>
+<p><img src="/images/2016-11-16-study-lstm/RNN-rolled.png" alt="RNN-rolled" /></p>
+<p>我们平时看到的向右一路展开的RNN其实向右方向（我用了虚线）是代表先后顺序（同时也带记忆数据流），跟上下方向意义是不一样的。有没有同学误解那么一排东西是可以同时喂进去的？这个图，我看到名字叫 <code>RNN-unrolled</code>。</p>
+<p><img src="/images/2016-11-16-study-lstm/RNN-unrolled.png" alt="RNN-unrolled" /></p>
+<h3>7. 另外两个工具函数</h3>
+<p>再定义两个用来把训练数据转换成可展现字符串的函数。</p>
+<p><code>characters</code> 先从one-hot encoding变回数字，再用id2char变成字符。</p>
+<p><code>batches2string</code> 则将训练数据变成可以展现的字符串。高手这么一批一批的处理数据逻辑还这么绕，而不是按凡人逻辑一个一个的处理让我觉得有点窒息的感觉，自感智商捉急了。</p>
+<pre><code class="language-python">def characters(probabilities):
+  &quot;&quot;&quot;Turn a 1-hot encoding or a probability distribution over the possible
+  characters back into its (most likely) character representation.&quot;&quot;&quot;
+  return [id2char(c) for c in np.argmax(probabilities, 1)]
+
+def batches2string(batches):
+  &quot;&quot;&quot;Convert a sequence of batches back into their (most likely) string
+  representation.&quot;&quot;&quot;
+  s = [''] * batches[0].shape[0]
+  for b in batches:
+    s = [''.join(x) for x in zip(s, characters(b))]
+  return s
+
+train_batches = BatchGenerator(train_text, batch_size, num_unrollings)
+valid_batches = BatchGenerator(valid_text, 1, 1)
+
+print(batches2string(train_batches.next()))
+print(batches2string(train_batches.next()))
+print(batches2string(valid_batches.next()))
+print(batches2string(valid_batches.next()))
+</code></pre>
+<h3>8. 另外四个工具函数</h3>
+<p>四个函数，给训练中输出摘要时使用。</p>
+<pre><code class="language-python">def logprob(predictions, labels):
+  &quot;&quot;&quot;Log-probability of the true labels in a predicted batch.&quot;&quot;&quot;
+  predictions[predictions &lt; 1e-10] = 1e-10
+  return np.sum(np.multiply(labels, -np.log(predictions))) / labels.shape[0]
+
+def sample_distribution(distribution):
+  &quot;&quot;&quot;Sample one element from a distribution assumed to be an array of normalized
+  probabilities.
+  &quot;&quot;&quot;
+  r = random.uniform(0, 1)
+  s = 0
+  for i in range(len(distribution)):
+    s += distribution[i]
+    if s &gt;= r:
+      return i
+  return len(distribution) - 1
+
+def sample(prediction):
+  &quot;&quot;&quot;Turn a (column) prediction into 1-hot encoded samples.&quot;&quot;&quot;
+  p = np.zeros(shape=[1, vocabulary_size], dtype=np.float)
+  p[0, sample_distribution(prediction[0])] = 1.0
+  return p
+
+def random_distribution():
+  &quot;&quot;&quot;Generate a random column of probabilities.&quot;&quot;&quot;
+  b = np.random.uniform(0.0, 1.0, size=[1, vocabulary_size])
+  return b/np.sum(b, 1)[:,None]
+</code></pre>
+<p><code>logprob</code>： 用来测量预测工作完成的如何。</p>
+<p>先回忆一下 <code>cross_entropy</code>：</p>
+<div class="math block">
+$$Cross Entropy = - \sum_{i}^N({predictions \cdot \log(labels)})$$
+</div>
+<p>那么，</p>
+<div class="math block">
+$$logprob = { Cross Entropy \over N }$$
+</div>
+<p>后面三个函数 <code>sample_distribution</code> <code>sample</code> <code>random_distribution</code> 是一起使用的。</p>
+<p><code>random_distribution</code> 就是生成一个平均分布的，加总和为 1 的 array。但是我不知道为何写的这么花哨，我试了半天，似乎 <code>b/np.sum(b, 1)[:,None]</code> 和 <code>b/np.sum(b)</code> 的意思是一样的。</p>
+<p><code>sample</code> 则是靠 <code>sample_distribution</code> 以传入的 <code>prediction</code> 的概率，随机取一个维设成 1 ，其他都设成 0 ，也就是按照 <code>prediction</code> 的概率获得一个随机字母。（为啥不直接取概率最大的那个字母呢？搞这么复杂真的好吗？）</p>
+<h3>9. 定义Tensorflow模型</h3>
+<p>分为几个部分：定义变量，定义LSTM Cell，定义输入接口，循环执行LSTM Cell，定义loss，定义优化，定义预测。</p>
+<p>num_nodes 是代表这个神经网络中LSTM Cell层的Cell个数。</p>
+<pre><code class="language-python">num_nodes = 64
+
+graph = tf.Graph()
+with graph.as_default():
+</code></pre>
+<h4>1) 定义变量</h4>
+<pre><code class="language-python">
+  # Parameters:
+  # Input gate: input, previous output, and bias.
+  ix = tf.Variable(tf.truncated_normal([vocabulary_size, num_nodes], -0.1, 0.1))
+  im = tf.Variable(tf.truncated_normal([num_nodes, num_nodes], -0.1, 0.1))
+  ib = tf.Variable(tf.zeros([1, num_nodes]))
+  # Forget gate: input, previous output, and bias.
+  fx = tf.Variable(tf.truncated_normal([vocabulary_size, num_nodes], -0.1, 0.1))
+  fm = tf.Variable(tf.truncated_normal([num_nodes, num_nodes], -0.1, 0.1))
+  fb = tf.Variable(tf.zeros([1, num_nodes]))
+  # Memory cell: input, state and bias.                             
+  cx = tf.Variable(tf.truncated_normal([vocabulary_size, num_nodes], -0.1, 0.1))
+  cm = tf.Variable(tf.truncated_normal([num_nodes, num_nodes], -0.1, 0.1))
+  cb = tf.Variable(tf.zeros([1, num_nodes]))
+  # Output gate: input, previous output, and bias.
+  ox = tf.Variable(tf.truncated_normal([vocabulary_size, num_nodes], -0.1, 0.1))
+  om = tf.Variable(tf.truncated_normal([num_nodes, num_nodes], -0.1, 0.1))
+  ob = tf.Variable(tf.zeros([1, num_nodes]))
+  # Variables saving state across unrollings.
+  saved_output = tf.Variable(tf.zeros([batch_size, num_nodes]), trainable=False)
+  saved_state = tf.Variable(tf.zeros([batch_size, num_nodes]), trainable=False)
+  # Classifier weights and biases.
+  w = tf.Variable(tf.truncated_normal([num_nodes, vocabulary_size], -0.1, 0.1))
+  b = tf.Variable(tf.zeros([vocabulary_size]))
+</code></pre>
+<p>LSTM Cell 首先有三个门，input output forget三门。</p>
+<p>Memory cell 暂时不知道是个什么。</p>
+<p>saved_output 是向上的产出，saved_state 是自己的状态记忆。</p>
+<p>w 和 b 是最后用来做一个 full connection 的标准神经网络层，把结果变为 vocabulary_size 个之一。</p>
+<h4>2) 定义LSTM Cell</h4>
+<pre><code class="language-python">  # Definition of the cell computation.
+  def lstm_cell(i, o, state):
+    &quot;&quot;&quot;Create a LSTM cell. See e.g.: http://arxiv.org/pdf/1402.1128v1.pdf
+    Note that in this formulation, we omit the various connections between the
+    previous state and the gates.&quot;&quot;&quot;
+    input_gate = tf.sigmoid(tf.matmul(i, ix) + tf.matmul(o, im) + ib)
+    forget_gate = tf.sigmoid(tf.matmul(i, fx) + tf.matmul(o, fm) + fb)
+    update = tf.matmul(i, cx) + tf.matmul(o, cm) + cb
+    state = forget_gate * state + input_gate * tf.tanh(update)
+    output_gate = tf.sigmoid(tf.matmul(i, ox) + tf.matmul(o, om) + ob)
+    return output_gate * tf.tanh(state), state
+</code></pre>
+<p>这里定义的 LSTM Cell 似乎并不是我们平时熟悉的那种，而是如下图（<a href="http://arxiv.org/pdf/1402.1128v1.pdf%EF%BC%89%EF%BC%9A">http://arxiv.org/pdf/1402.1128v1.pdf）：</a></p>
+<p><img src="/images/2016-11-16-study-lstm/lstm-for-chars.png" alt="lstm for chars" /></p>
+<p>初看这个图可能不是很能理解，于是我重新画了一下：</p>
+<p><img src="/images/2016-11-16-study-lstm/lstm-model.png" alt="lstm model" /></p>
+<p>我手画的图例解释：</p>
+<p>(1) \(\otimes\)代表两个数据源乘上参数后相加。\(\oplus\)代表两个数据源相加。</p>
+<p>(2) \(\otimes\)外面再加花边的，代表两个数据源相乘后再取 <code>sigmoid</code> 。</p>
+<p>(3) 圆圈里是 \(g\) 的，代表取 <code>tanh</code> 。</p>
+<p>(4) \(State_{-1}\) 下标-1代表这是上一次迭代时的结果。</p>
+<blockquote>
+<p>回想一下，<code>sigmoid</code> 函数产生一个(0,1)的数，<code>tanh</code> 函数产生一个(-1,1)的数。</p>
+</blockquote>
+<p>作为对比，我再引用一个我认为画的最完美的标准 LSTM Cell 图，来自 <a href="http://colah.github.io/posts/2015-08-Understanding-LSTMs/">Colah 的博客</a>：</p>
+<p><img src="/images/2016-11-16-study-lstm/LSTM3-chain.png" alt="LSTM3-chain" /></p>
+<p>Colah 图例解释：</p>
+<p>(1) 方形中带 \(\sigma\) ，代表两个数据源连接在一起后乘参数，再取 <code>sigmoid</code> 。（<strong>嗯，这里有不同</strong>：Colah 博客中标准的 LSTM Cell 中，这里的操作是先接在一起，再乘参数，而我们这里是先各自乘参数，再相加。）</p>
+<p>(2) 方形中带 \(tanh\) ，代表两个数据源连接在一起后乘参数，再取 <code>tanh</code> 。（<strong>这里也是</strong>）</p>
+<p>(3) 椭圆形中带 \(tanh\)， 代表直接取 <code>tanh</code> 。</p>
+<p>(4) \(\otimes\)代表两个数据源相乘。\(\oplus\)代表两个数据源相加。</p>
+<p>(5) 两条从过去\(-1\)到当前 Cell 再到未来\(+1\)的横向黑色线条箭头，上方代表 <code>state</code>，下方代表 <code>output</code>。</p>
+<p>所以像论文里指出的，这里实现的 LSTM Cell 含有更多参数，效果更好？这种比较目前超出我的认知范围，以后再细看。</p>
+<h4>3) 定义输入接口</h4>
+<pre><code class="language-python">  # Input data.
+  train_data = list()
+  for _ in range(num_unrollings + 1):
+    train_data.append(
+      tf.placeholder(tf.float32, shape=[batch_size,vocabulary_size]))
+  train_inputs = train_data[:num_unrollings]
+  train_labels = train_data[1:]  # labels are inputs shifted by one time step.
+</code></pre>
+<p>这里也是一个 batch 同时处理的。但为了容易理解，我先假设 <code>batch_size=1</code> ，然后假设我们要训练一个字符串 abcdefg。</p>
+<p>那么 <code>train_inputs</code> 是 abcdef，<code>train_labels</code> 是 bcdefg 。</p>
+<h4>4) 循环执行LSTM Cell</h4>
+<pre><code class="language-python">  # Unrolled LSTM loop.
+  outputs = list()
+  output = saved_output
+  state = saved_state
+  for i in train_inputs:
+    output, state = lstm_cell(i, output, state)
+    outputs.append(output)
+</code></pre>
+<p>根据前面定义变量的时候规定，初始 <code>saved_output</code> 和 <code>saved_state</code> 都是全零。</p>
+<p>依次输入 a b c d e f ，把每一次的输出放在一起形成一个 list 就是 <code>outputs</code>。</p>
+<h4>5) 定义loss</h4>
+<pre><code class="language-python">  # State saving across unrollings.
+  with tf.control_dependencies([saved_output.assign(output),
+                                saved_state.assign(state)]):
+    # Classifier.
+    logits = tf.nn.xw_plus_b(tf.concat(0, outputs), w, b)
+    loss = tf.reduce_mean(
+      tf.nn.softmax_cross_entropy_with_logits(
+        logits, tf.concat(0, train_labels)))
+</code></pre>
+<p>因为不是顺序执行语言，一般模型如果不是相关的语句，其执行是没有先后顺序的，<code>control_dependencies</code> 的作用就是建立先后顺序，保证前面两句被执行后，才执行后面的内容。</p>
+<p>这里也就是先把 <code>saved_output</code> 和 <code>saved_state</code> 保存之后，再计算 <code>logits</code> 和 <code>loss</code>。否则因为下面计算时没有关联到 <code>saved_output</code> 和 <code>saved_state</code>，如果不用 <code>control_dependencies</code> 那上面两句保存就不会被优化语句触发。</p>
+<p><a href="https://www.tensorflow.org/versions/r0.11/api_docs/python/array_ops.html#concat"><code>tf.concat(0, values)</code></a> 是指在 0 维上把 values 连接起来。本来 outputs 是一个 list，每一个元素都是一个27维向量表示一个字母（还是假设 <code>batch_size=1</code>）。</p>
+<p>通过 <code>tf.concat</code> 把结果连接起来，成为一个向量，可以拿来乘以 w 加上 b 这样进入一个 full connection，从而得到 logits 。</p>
+<p>然后再通过 <code>softmax_cross_entropy_with_logits</code> 比较连接并 full connection 的 <code>outputs</code> 和 连接起来的 <code>train_labels</code> ，得到 <code>loss</code> 。</p>
+<h4>6) 定义优化</h4>
+<pre><code class="language-python">  # Optimizer.
+  global_step = tf.Variable(0)
+  learning_rate = tf.train.exponential_decay(
+    10.0, global_step, 5000, 0.1, staircase=True)
+  optimizer = tf.train.GradientDescentOptimizer(learning_rate)
+  gradients, v = zip(*optimizer.compute_gradients(loss))
+  gradients, _ = tf.clip_by_global_norm(gradients, 1.25)
+  optimizer = optimizer.apply_gradients(
+    zip(gradients, v), global_step=global_step)
+</code></pre>
+<p><a href="https://www.tensorflow.org/versions/r0.11/api_docs/python/train.html#exponential_decay"><code>tf.train.exponential_decay</code></a> 可以用来实现 <code>learning_rate</code> 的指数型衰减，越到后面 <code>learning_rate</code> 越小。（依赖后面修改 <code>global_step</code> 值来实现）</p>
+<p><code>optimizer</code> 定义成使用标准 Gradient Descent 。每一种 <code>optimizer</code> 都有几个标准接口，我们前面常用的是 <code>minimize</code> 接口，他自动的调整整个 <code>Graph</code> 中可调节的 <code>Variables</code> 尝试最小化 <code>loss</code>。其实 <code>minimize</code> 函数就是这两步并起来： <code>compute_gradients</code> 和 <code>apply_gradients</code>。先计算梯度值，然后再把那些参数减去梯度值。这里把两步分开了，为了在 apply 之前先处理一下梯度值，Tensorflow 给了详细解释，我们来看看[手册][manual-compute-gradients]。</p>
+<p><code>compute_gradients</code> 函数返回一个list，里面是一对一对的 <code>gradient</code> 和 <code>variable</code>，说明针对某个可调整的变量，他的梯度是多少。</p>
+<p><code>clip_by_global_norm</code> 避免梯度值过大产生 Exploding Gradients 梯度爆炸问题，视频里有这么一个图：</p>
+<p><img src="/images/2016-11-16-study-lstm/clip_gradient.png" alt="clip gradients" /></p>
+<p><code>clip_by_global_norm</code> 的具体计算是，先计算 <code>global_norm</code> ，也就是整个 <code>tensor</code> 的模（二范数）。看这个模是否大于文中的<code>1.25</code>，如果大于，则结果等于 <code>gradients * 1.25 / global_norm</code>，如果不大于，就不变。</p>
+<p>最后，<code>apply_gradients</code>。这里传入的 <code>global_step</code> 是会被修改的，每次加一，这样下次计算 <code>learning_rate</code> 的时候就会使用新的 <code>global_step</code> 值。</p>
+<h4>7) 定义预测</h4>
+<pre><code class="language-python">  # Predictions.
+  train_prediction = tf.nn.softmax(logits)
+
+  # Sampling and validation eval: batch 1, no unrolling.
+  sample_input = tf.placeholder(tf.float32, shape=[1, vocabulary_size])
+  saved_sample_output = tf.Variable(tf.zeros([1, num_nodes]))
+  saved_sample_state = tf.Variable(tf.zeros([1, num_nodes]))
+  reset_sample_state = tf.group(
+    saved_sample_output.assign(tf.zeros([1, num_nodes])),
+    saved_sample_state.assign(tf.zeros([1, num_nodes])))
+  sample_output, sample_state = lstm_cell(
+    sample_input, saved_sample_output, saved_sample_state)
+  with tf.control_dependencies([saved_sample_output.assign(sample_output),
+                                saved_sample_state.assign(sample_state)]):
+    sample_prediction = tf.nn.softmax(tf.nn.xw_plus_b(sample_output, w, b))
+</code></pre>
+<p><code>sample_input</code> 是一个1-hot编码过的字符。</p>
+<p>建立初始 state 和 output，经过同样的 LSTM Cell，得到下一个预测的字符 <code>sample_prediction</code>。</p>
+<h3>10. 开始训练</h3>
+<h4>1) 训练</h4>
+<p>注意到这里喂进去的字符串长度正好是 <code>num_unrollings + 1</code>，恰好对应前面 <code>BatchGenerator.next()</code> 获取的时候得到的字符串长度，也恰好对应了模型定义里 <code>train_inputs</code> 和 <code>train_labels</code> 错开1个字符。</p>
+<p><code>mean_loss</code> 用来加总各步的 <code>loss</code> 值，用来后面输出。（还是建议叫 <code>subtotal_loss</code>）</p>
+<pre><code class="language-python">num_steps = 7001
+summary_frequency = 100
+
+with tf.Session(graph=graph) as session:
+  tf.initialize_all_variables().run()
+  print('Initialized')
+  mean_loss = 0
+  for step in range(num_steps):
+    batches = train_batches.next()
+    feed_dict = dict()
+    for i in range(num_unrollings + 1):
+      feed_dict[train_data[i]] = batches[i]
+    _, l, predictions, lr = session.run(
+      [optimizer, loss, train_prediction, learning_rate], feed_dict=feed_dict)
+    mean_loss += l
+</code></pre>
+<h4>2) 定期输出摘要</h4>
+<p>他怎么不用 tensorflow 来计算呀，反而用 numpy 来计算，很奇怪。来仔细看看。</p>
+<pre><code class="language-python">    if step % summary_frequency == 0:
+      if step &gt; 0:
+        mean_loss = mean_loss / summary_frequency
+      # The mean loss is an estimate of the loss over the last few batches.
+      print(
+        'Average loss at step %d: %f learning rate: %f' % (step, mean_loss, lr))
+      mean_loss = 0
+      labels = np.concatenate(list(batches)[1:])
+      print('Minibatch perplexity: %.2f' % float(
+        np.exp(logprob(predictions, labels))))
+      if step % (summary_frequency * 10) == 0:
+        # Generate some samples.
+        print('=' * 80)
+        for _ in range(5):
+          feed = sample(random_distribution())
+          sentence = characters(feed)[0]
+          reset_sample_state.run()
+          for _ in range(79):
+            prediction = sample_prediction.eval({sample_input: feed})
+            feed = sample(prediction)
+            sentence += characters(feed)[0]
+          print(sentence)
+        print('=' * 80)
+      # Measure validation set perplexity.
+      reset_sample_state.run()
+      valid_logprob = 0
+      for _ in range(valid_size):
+        b = valid_batches.next()
+        predictions = sample_prediction.eval({sample_input: b[0]})
+        valid_logprob = valid_logprob + logprob(predictions, b[1])
+      print('Validation set perplexity: %.2f' % float(np.exp(
+        valid_logprob / valid_size)))
+</code></pre>
+<p>每当 <code>summary_frequency</code> 整数倍步的时候，输出平均 <code>loss</code> 值和 <code>learning_rate</code> ，看看是否有 clip 掉，如果没有 clip 掉，那么都是 10.0 。然后再计算这一部分 train set perplexity。</p>
+<p>每当 <code>summary_frequency * 10</code> 整数倍步的时候，尝试输出一些文字结果。</p>
+<p>这里尝试得到 5 句，每局 80 个字符的文字结果。</p>
+<p>首先以平均分布随机得到一个字符，并作为 <code>sentence</code> 的第一个字符。</p>
+<p>然后 <code>reset_sample_state</code> 一下，保证初始化的 <code>state</code> 和 <code>output</code> 都设成 0 。</p>
+<p>然后传入第一个字符作为输入，得到第一个预测字符的预测概率 <code>prediction</code>，通过 <code>sample</code> 将其蜕化成一个确定的字符 <code>feed</code>，然后接到 <code>sentence</code> 上，并下一次传给模型作为输入。</p>
+<p>这样就得到了一句80字符的句子。重复这个过程 5 次，得到 5 句。</p>
+<p>继而，又是每当 <code>summary_frequency</code> 整数倍步的时候，（写的不好啊，明明应当把相近的写在一起。）用 valid_text 来计算平均的 validation set perplexity。</p>
+<p>根据信息论，perplexity <a href="https://en.wikipedia.org/wiki/Perplexity">wikipedia定义</a> 和 cross_entropy 的关系如下：</p>
+<div class="math block">
+$$perplexity = e^{cross\_entropy}$$
+</div>
+<h2>结束</h2>
+<p>谢谢阅读，敬请留言。</p>
+</div>
+        </article>
+        <section class="comments-panel" aria-label="Comments">
+            <div id="remark42"></div>
+        </section>
+    </main>
+    <footer class="footer">
+        <div class="social-links">
+            <a href="https://github.com/liusida" aria-label="GitHub" target="_blank" rel="noopener noreferrer">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+            </a>
+            <a href="https://www.alphaxiv.org/@sida-liu" aria-label="AlphaXiv" target="_blank" rel="noopener noreferrer">
+                <span class="alphaxiv-icon" aria-hidden="true">αXiv</span>
+            </a>
+            <a href="https://x.com/liusida2007" aria-label="X / Twitter" target="_blank" rel="noopener noreferrer">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+            </a>
+            <a href="https://xhslink.com/m/9s7XWUIVsQs" aria-label="Xiaohongshu" target="_blank" rel="noopener noreferrer">
+                <img src="/images/xhs-logo.png" alt="小红书" class="xhs-icon">
+            </a>
+        </div>
+        <p class="footer-note">You can pronounce my name as <em>Star</em>, since that's what it sounds in Mandarin Chinese.</p>
+    </footer>
+
+    <script>
+    function getPostSlug() {
+        var params = new URLSearchParams(window.location.search);
+        var slug = params.get('slug');
+        if (slug) return slug;
+
+        var match = window.location.pathname.match(/^\/post\/([^\/]+)\/?$/);
+        return match ? decodeURIComponent(match[1]) : '';
+    }
+
+    function trackPostView(slug, meta) {
+        var title = meta && meta.title ? meta.title : slug;
+        var path = '/post/' + encodeURIComponent(slug);
+        var attempts = 0;
+
+        function send() {
+            if (window.umami && typeof window.umami.track === 'function') {
+                window.umami.track(function(props) {
+                    return Object.assign({}, props, {
+                        url: path,
+                        title: title + ' - Sida Liu'
+                    });
+                });
+                window.umami.track('post-view', {
+                    slug: slug,
+                    title: title
+                });
+                return;
+            }
+
+            attempts += 1;
+            if (attempts < 20) {
+                window.setTimeout(send, 250);
+            }
+        }
+
+        send();
+    }
+
+    (async function() {
+        var slug = getPostSlug();
+        if (!slug) {
+            document.getElementById('post-content').textContent = 'No post specified.';
+            return;
+        }
+
+        var preEl = document.getElementById('post-content');
+        if (preEl.hasAttribute('data-prerendered')) {
+            var preAttempts = 0;
+            (function typesetPre() {
+                if (window.MathJax && typeof window.MathJax.typesetPromise === 'function') {
+                    window.MathJax.typesetPromise([preEl]);
+                    return;
+                }
+                if (++preAttempts < 40) window.setTimeout(typesetPre, 100);
+            })();
+            trackPostView(slug, { title: document.getElementById('post-title').textContent });
+            return;
+        }
+
+        var cleanPath = '/post/' + encodeURIComponent(slug);
+        if (window.location.pathname !== cleanPath) {
+            window.history.replaceState(null, '', cleanPath);
+        }
+
+        try {
+            var results = await Promise.all([
+                fetch('/data/posts.json'),
+                fetch('/posts/' + slug + '.md')
+            ]);
+            var metaRes = results[0];
+            var mdRes = results[1];
+
+            if (!mdRes.ok) {
+                document.getElementById('post-content').textContent = 'Post not found.';
+                return;
+            }
+
+            var posts = await metaRes.json();
+            var md = await mdRes.text();
+            var meta = posts.find(function(p) { return p.slug === slug; });
+
+            if (meta) {
+                document.getElementById('post-title').textContent = meta.title;
+                var d = new Date(meta.date + 'T00:00:00');
+                var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+                document.getElementById('post-date').textContent = months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
+                document.title = meta.title + ' \u2014 Sida Liu';
+            }
+
+            var contentEl = document.getElementById('post-content');
+            contentEl.innerHTML = marked.parse(md);
+
+            var mathAttempts = 0;
+            function typesetPostMath() {
+                if (window.MathJax && typeof window.MathJax.typesetPromise === 'function') {
+                    window.MathJax.typesetPromise([contentEl]);
+                    return;
+                }
+                mathAttempts += 1;
+                if (mathAttempts < 40) {
+                    window.setTimeout(typesetPostMath, 100);
+                }
+            }
+            typesetPostMath();
+            trackPostView(slug, meta);
+        } catch (e) {
+            document.getElementById('post-content').textContent = 'Error loading post.';
+        }
+    })();
+    </script>
+    <script>
+      var remark_config = {
+        host: "https://remark.liusida.com",
+        site_id: "liusida.com",
+        url: "https://liusida.com/post/" + encodeURIComponent(getPostSlug())
+      };
+    </script>
+    <script src="https://remark.liusida.com/web/embed.js"></script>    
+</body>
+</html>

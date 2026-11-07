@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>What Is a Dictionary For? — Sida Liu</title>
+    <meta name="description" content="Dictionary learning should be evaluated according to whether it aims to discover, describe, explain, or control neural representations—and especially whether it helps humans understand them.">
+    <link rel="canonical" href="https://liusida.com/post/what-is-a-dictionary-for-rethinking-how-we-evaluate-sparse-autoencoders">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="What Is a Dictionary For?">
+    <meta property="og:description" content="Dictionary learning should be evaluated according to whether it aims to discover, describe, explain, or control neural representations—and especially whether it helps humans understand them.">
+    <meta property="og:url" content="https://liusida.com/post/what-is-a-dictionary-for-rethinking-how-we-evaluate-sparse-autoencoders">
+    <meta property="article:published_time" content="2026-09-09">
+    <link rel="icon" href="/favicon.ico">
+    <link rel="stylesheet" href="/style.css">
+    <script>var t=localStorage.getItem('theme');if(t)document.documentElement.setAttribute('data-theme',t);</script>
+    <script src="/lib/marked.min.js"></script>
+    <script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']],
+          displayMath: [['$$', '$$'], ['\\[', '\\]']]
+        },
+        svg: { fontCache: 'global' }
+      };
+    </script>
+    <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+    <script async defer data-website-id="b9e7a81c-fb4b-4238-96f6-2bdcb80dde85" data-auto-track="false" src="https://analytics.liusida.com/umami/script.js"></script>
+</head>
+<body>
+
+    <nav class="site-nav">
+        <a href="/" class="site-nav-home">Sida Liu</a>
+        <div class="site-nav-links">
+            <a href="/research-notes.html">Research Notes</a>
+            <a href="/writing.html">Writing</a>
+            <a href="/projects.html">Projects</a>
+            <a href="/journey.html">Journey</a>
+            <a href="/bookshelf.html">Bookshelf</a>
+        </div>
+    </nav>
+
+    <main>
+        <article class="post">
+            <header class="post-header">
+                <h1 id="post-title">What Is a Dictionary For?</h1>
+                <time id="post-date" datetime="2026-09-09">Sep 9, 2026</time>
+            </header>
+            <div id="post-content" data-prerendered>
+<p>Sparse autoencoders (SAEs) and other dictionary-learning methods are increasingly used to make neural representations interpretable. Recently, however, SAEs have faced growing criticism. They do not always outperform simple baselines for concept detection or steering; their features may not form canonical units; and some evaluation metrics suggest surprisingly weak performance.</p>
+<p>These results are important. But before concluding that dictionary learning has failed, there is a more basic question we should ask:</p>
+<p><strong>What is a dictionary supposed to do?</strong></p>
+<p>Part of the confusion may come from grouping several distinct goals under the single word <em>interpretability</em>.</p>
+<h2>Four different goals</h2>
+<p>When studying neural representations, we often group several distinct goals under the broad term <em>interpretability</em>. It is useful to separate at least four:</p>
+<div class="equation">\[
+\boxed{
+\text{Discover}
+\rightarrow
+\text{Interpret}
+\rightarrow
+\text{Explain}
+\rightarrow
+\text{Control}
+}
+\]</div>
+<p><strong>Feature discovery</strong>: What recurring structure can we discover in the activation space? For SAEs, dictionary learning performs this step by finding a sparse decomposition of the activation distribution.</p>
+<p><strong>Feature interpretation</strong>: What do the discovered features mean? Through examples, counterexamples, and annotation, we try to assign them useful human-understandable descriptions.</p>
+<p><strong>Mechanistic explanation</strong>: What role do these features or the information they represent play in the model's computation?</p>
+<p><strong>Control</strong>: How should we modify the model's internal state to produce a desired change in behavior?</p>
+<p>These goals are related, but success at one does not imply success at the others. A feature can be interpretable without being a privileged unit of computation, and an interpretable or mechanistically relevant feature need not provide the best direction for intervention.</p>
+<p><strong>This distinction matters because we sometimes train SAEs for discovery, annotate them for interpretation, and then judge them primarily by their performance at control.</strong></p>
+<h2>A dictionary as semantic compression</h2>
+<p>A neural activation is a point in a high-dimensional continuous space:</p>
+<div class="equation">\[
+x\in\mathbb{R}^d.
+\]</div>
+<p>Humans cannot directly reason about thousands of arbitrary coordinates. Dictionary learning attempts to represent this vector using a finite vocabulary of directions:</p>
+<div class="equation">\[
+x \approx Dz,
+\]</div>
+<p>where <span class="math inline">$z$</span> is sparse.</p>
+<p>If the resulting features are understandable, an opaque vector can instead be described by something resembling</p>
+<div class="equation">\[
+\{\text{cat},\text{black},\text{animal},\text{indoors},\ldots\}.
+\]</div>
+<p>This can be viewed as a kind of <strong>semantic discretization</strong> or semantic compression. The original representation is continuous and high-dimensional; the dictionary provides a finite vocabulary with which humans can approximately describe it.</p>
+<p>Crucially, this vocabulary does not have to be the coordinate system in which the model itself computes.</p>
+<p>Nor does it have to be the best coordinate system for manipulating the model.</p>
+<p>A map can be extremely useful without being a steering wheel.</p>
+<h2>Description is not control</h2>
+<p>Suppose an SAE identifies features we label “black,” “cat,” “brown,” and “dog.” We have a representation of a black cat and want to transform it into one representing a brown dog.</p>
+<p>It is tempting to perform</p>
+<div class="equation">\[
+x'
+=
+x
+-d_{\text{black}}
+-d_{\text{cat}}
++d_{\text{brown}}
++d_{\text{dog}}.
+\]</div>
+<p>But why should this be the correct transformation?</p>
+<p>The SAE was trained to sparsely describe naturally occurring activations. It was not trained so that arbitrary arithmetic on its learned features corresponds to valid counterfactual transformations.</p>
+<p>The correct change from “black cat” to “brown dog” may depend on the current representation, context, layer, and many interacting properties. It may be better estimated directly from examples of the states we want to transform between.</p>
+<p>This gives us two fundamentally different problems:</p>
+<div class="equation">\[
+\textbf{description:}\qquad
+x\rightarrow z
+\]</div>
+<p>and</p>
+<div class="equation">\[
+\textbf{control:}\qquad
+(x,\text{desired outcome})\rightarrow x'.
+\]</div>
+<p>There is no reason the optimal solution to the first problem should also be the optimal solution to the second.</p>
+<p>A supervised contrastive direction, difference-in-means estimator, learned transformation, or context-dependent intervention has access to information about the particular transformation we want. An unsupervised dictionary does not.</p>
+<p>Therefore, if such a method outperforms an SAE at steering a predefined concept, that is evidence that it is a better <strong>steering method</strong>. It is not by itself evidence that it provides a better <strong>dictionary of representation space</strong>.</p>
+<h2>Description is also not mechanism</h2>
+<p>There is another distinction that should not be lost.</p>
+<p>Suppose an SAE feature reliably activates on some recognizable semantic phenomenon. Through controlled examples, counterexamples, and iterative annotation, we may become increasingly confident about what the feature describes.</p>
+<p>This establishes something about the structure of the representation.</p>
+<p>It does not necessarily establish how the model uses that structure.</p>
+<p>A feature may provide an excellent description of information present in <span class="math inline">$x$</span> while being downstream of the computation that produced a behavior, redundant with other information, or organized differently from the variables most naturally used to explain the model's computation.</p>
+<p>Thus,</p>
+<div class="equation">\[
+\text{“this concept is represented here”}
+\]</div>
+<p>and</p>
+<div class="equation">\[
+\text{“the model computes with this concept in this way”}
+\]</div>
+<p>are different scientific claims.</p>
+<p>Causal analysis is essential when our goal is the second. But failure to recover privileged causal variables does not automatically imply failure at the first.</p>
+<h2>What does it mean for a dictionary feature to be interpretable?</h2>
+<p>If our goal is human interpretation, feature annotation becomes central.</p>
+<p>Suppose we initially label a feature “French.” We then discover that it activates on formal French but not informal French. Our original annotation was incomplete, so we refine it.</p>
+<p>Further controlled datasets may reveal additional conditions.</p>
+<p>This is an empirical process: propose a description, search for positive and negative examples, find counterexamples, and refine the description.</p>
+<p>Importantly, controlled experimentation on <strong>inputs</strong> should not be confused with intervention on <strong>SAE features</strong>.</p>
+<p>We may need carefully designed inputs to understand what a dictionary element means without requiring that the dictionary element itself be a good unit of control.</p>
+<p>There is nevertheless a fundamental limit to annotation. A discovered feature may respond to several seemingly unrelated concepts, with no useful semantic description that unifies them. We could annotate it as a disjunction—“concept A or concept B or concept C”—but this defeats much of the purpose of learning an interpretable dictionary.</p>
+<p>The challenge is therefore not simply to describe each feature more precisely, but to discover features that are sufficiently <strong>semantically coherent</strong> to serve as useful units of human understanding. In this sense, polysemanticity is a failure of the dictionary's interpretability, even if the feature itself is perfectly well-defined mathematically.</p>
+<p>At that point the dictionary has failed at something important—not necessarily because the feature is non-causal, but because it has failed to provide useful <strong>semantic compression</strong>.</p>
+<p>The goal is not merely to assign every direction a label. The label must compress the feature's behavior enough to help humans reason.</p>
+<h2>Evaluating the objective we actually care about</h2>
+<p>This perspective suggests that SAE evaluation should distinguish at least four families of metrics:</p>
+<div class="equation">\[
+\begin{array}{lll}
+\textbf{Discovery} &:&
+\text{Does the dictionary reveal meaningful structure?}\\[3pt]
+\textbf{Description} &:&
+\text{Can humans understand representations through it?}\\[3pt]
+\textbf{Mechanism} &:&
+\text{Does it help explain the model's computation?}\\[3pt]
+\textbf{Control} &:&
+\text{Does it support precise counterfactual interventions?}
+\end{array}
+\]</div>
+<p>A dictionary may perform well on some and poorly on others.</p>
+<p>That is not necessarily contradictory.</p>
+<p>For example, a dictionary optimized specifically for intervention could provide excellent control while offering humans little insight into the overall structure of activation space. Conversely, an interpretable dictionary might reveal useful semantic organization while providing only crude intervention directions.</p>
+<p>The dangerous step is turning one of these measurements into an unconditional ranking:</p>
+<div class="equation">\[
+\text{better steering}
+\Rightarrow
+\text{better dictionary}.
+\]</div>
+<p>The meaningful statement is narrower:</p>
+<div class="equation">\[
+\text{better steering}
+\Rightarrow
+\text{better dictionary for steering}.
+\]</div>
+<p>The same caution applies to causal ablation metrics, sparse probing, reconstruction error, and automated feature-interpretability scores. Each measures some property of a representation. None should silently become the definition of interpretability as a whole.</p>
+<h2>The missing benchmark: understanding</h2>
+<p>This leaves an uncomfortable problem.</p>
+<p>Reconstruction is easy to measure.</p>
+<p>Sparsity is easy to measure.</p>
+<p>Classification is easy to measure.</p>
+<p>Steering is easy to measure.</p>
+<p>Causal ablation is relatively easy to measure.</p>
+<p>But the original motivation for dictionary learning is arguably something much harder:</p>
+<div class="equation">\[
+\boxed{
+\text{Does this representation help us understand the model's internal state?}
+}
+\]</div>
+<p>If this is the objective, we eventually need to evaluate it directly.</p>
+<p>Instead of asking only whether an SAE feature can steer a predefined concept, we might ask whether access to an SAE dictionary allows researchers to discover distinctions they did not know beforehand, formulate hypotheses about unfamiliar activations, predict properties of unseen examples, diagnose unexpected model behavior, or communicate what is happening inside a representation more efficiently.</p>
+<p>Schematically:</p>
+<div class="equation">\[
+\text{activation}
+\rightarrow
+\text{dictionary}
+\rightarrow
+\text{human}
+\rightarrow
+\text{new understanding}.
+\]</div>
+<p>Such experiments are considerably harder than measuring reconstruction error or steering strength. But difficulty of measurement should not cause us to substitute an easier objective for the one we actually care about.</p>
+<h2>Better for what?</h2>
+<p>None of this implies that causal interventions, steering benchmarks, or supervised concept methods are misguided.</p>
+<p>If our goal is control, we should develop and evaluate methods for control.</p>
+<p>If our goal is mechanistic explanation, we should test causal claims about computation.</p>
+<p>If our goal is detecting a known concept, supervised methods that are explicitly told what to look for may be exactly the right tools.</p>
+<p>And if our goal is discovering and describing the unknown structure of a high-dimensional representation, dictionary learning may still have an important role—even if it loses to those specialized methods at their respective tasks.</p>
+<p>The important question is therefore not simply:</p>
+<blockquote>
+<p><strong>Are sparse autoencoders useful?</strong></p>
+</blockquote>
+<p>It is:</p>
+<blockquote>
+<p><strong>Useful for what?</strong></p>
+</blockquote>
+<p>Before deciding whether a dictionary-learning method has succeeded or failed, we should specify whether we are asking it to discover, describe, explain, or control.</p>
+<p>Only then can we build the right benchmark.</p>
+<p><strong>A dictionary need not be a steering wheel.</strong></p>
+<p><strong>But if we claim that it is a map, we should demonstrate that it actually helps someone understand the territory.</strong></p>
+</div>
+        </article>
+        <section class="comments-panel" aria-label="Comments">
+            <div id="remark42"></div>
+        </section>
+    </main>
+    <footer class="footer">
+        <div class="social-links">
+            <a href="https://github.com/liusida" aria-label="GitHub" target="_blank" rel="noopener noreferrer">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+            </a>
+            <a href="https://www.alphaxiv.org/@sida-liu" aria-label="AlphaXiv" target="_blank" rel="noopener noreferrer">
+                <span class="alphaxiv-icon" aria-hidden="true">αXiv</span>
+            </a>
+            <a href="https://x.com/liusida2007" aria-label="X / Twitter" target="_blank" rel="noopener noreferrer">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+            </a>
+            <a href="https://xhslink.com/m/9s7XWUIVsQs" aria-label="Xiaohongshu" target="_blank" rel="noopener noreferrer">
+                <img src="/images/xhs-logo.png" alt="小红书" class="xhs-icon">
+            </a>
+        </div>
+        <p class="footer-note">You can pronounce my name as <em>Star</em>, since that's what it sounds in Mandarin Chinese.</p>
+    </footer>
+
+    <script>
+    function getPostSlug() {
+        var params = new URLSearchParams(window.location.search);
+        var slug = params.get('slug');
+        if (slug) return slug;
+
+        var match = window.location.pathname.match(/^\/post\/([^\/]+)\/?$/);
+        return match ? decodeURIComponent(match[1]) : '';
+    }
+
+    function trackPostView(slug, meta) {
+        var title = meta && meta.title ? meta.title : slug;
+        var path = '/post/' + encodeURIComponent(slug);
+        var attempts = 0;
+
+        function send() {
+            if (window.umami && typeof window.umami.track === 'function') {
+                window.umami.track(function(props) {
+                    return Object.assign({}, props, {
+                        url: path,
+                        title: title + ' - Sida Liu'
+                    });
+                });
+                window.umami.track('post-view', {
+                    slug: slug,
+                    title: title
+                });
+                return;
+            }
+
+            attempts += 1;
+            if (attempts < 20) {
+                window.setTimeout(send, 250);
+            }
+        }
+
+        send();
+    }
+
+    (async function() {
+        var slug = getPostSlug();
+        if (!slug) {
+            document.getElementById('post-content').textContent = 'No post specified.';
+            return;
+        }
+
+        var preEl = document.getElementById('post-content');
+        if (preEl.hasAttribute('data-prerendered')) {
+            var preAttempts = 0;
+            (function typesetPre() {
+                if (window.MathJax && typeof window.MathJax.typesetPromise === 'function') {
+                    window.MathJax.typesetPromise([preEl]);
+                    return;
+                }
+                if (++preAttempts < 40) window.setTimeout(typesetPre, 100);
+            })();
+            trackPostView(slug, { title: document.getElementById('post-title').textContent });
+            return;
+        }
+
+        var cleanPath = '/post/' + encodeURIComponent(slug);
+        if (window.location.pathname !== cleanPath) {
+            window.history.replaceState(null, '', cleanPath);
+        }
+
+        try {
+            var results = await Promise.all([
+                fetch('/data/posts.json'),
+                fetch('/posts/' + slug + '.md')
+            ]);
+            var metaRes = results[0];
+            var mdRes = results[1];
+
+            if (!mdRes.ok) {
+                document.getElementById('post-content').textContent = 'Post not found.';
+                return;
+            }
+
+            var posts = await metaRes.json();
+            var md = await mdRes.text();
+            var meta = posts.find(function(p) { return p.slug === slug; });
+
+            if (meta) {
+                document.getElementById('post-title').textContent = meta.title;
+                var d = new Date(meta.date + 'T00:00:00');
+                var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+                document.getElementById('post-date').textContent = months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
+                document.title = meta.title + ' \u2014 Sida Liu';
+            }
+
+            var contentEl = document.getElementById('post-content');
+            contentEl.innerHTML = marked.parse(md);
+
+            var mathAttempts = 0;
+            function typesetPostMath() {
+                if (window.MathJax && typeof window.MathJax.typesetPromise === 'function') {
+                    window.MathJax.typesetPromise([contentEl]);
+                    return;
+                }
+                mathAttempts += 1;
+                if (mathAttempts < 40) {
+                    window.setTimeout(typesetPostMath, 100);
+                }
+            }
+            typesetPostMath();
+            trackPostView(slug, meta);
+        } catch (e) {
+            document.getElementById('post-content').textContent = 'Error loading post.';
+        }
+    })();
+    </script>
+    <script>
+      var remark_config = {
+        host: "https://remark.liusida.com",
+        site_id: "liusida.com",
+        url: "https://liusida.com/post/" + encodeURIComponent(getPostSlug())
+      };
+    </script>
+    <script src="https://remark.liusida.com/web/embed.js"></script>    
+</body>
+</html>

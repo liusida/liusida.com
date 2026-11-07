@@ -45,6 +45,7 @@ function toggleOrder(btn) {
 
             narrativeEl.textContent = THEMES['All'];
 
+            listEl.innerHTML = '';
             posts.forEach(function (p) {
                 var card = document.createElement('a');
                 card.className = 'post-card';

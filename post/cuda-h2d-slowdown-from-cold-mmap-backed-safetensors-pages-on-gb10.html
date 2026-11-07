@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>CUDA H2D Slowdown From Cold mmap-Backed safetensors Pages on GB10 — Sida Liu</title>
+    <meta name="description" content="A debugging note on why CUDA host-to-device copies from safetensors can look slow when the source tensor is backed by cold mmap pages.">
+    <link rel="canonical" href="https://liusida.com/post/cuda-h2d-slowdown-from-cold-mmap-backed-safetensors-pages-on-gb10">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="CUDA H2D Slowdown From Cold mmap-Backed safetensors Pages on GB10">
+    <meta property="og:description" content="A debugging note on why CUDA host-to-device copies from safetensors can look slow when the source tensor is backed by cold mmap pages.">
+    <meta property="og:url" content="https://liusida.com/post/cuda-h2d-slowdown-from-cold-mmap-backed-safetensors-pages-on-gb10">
+    <meta property="article:published_time" content="2026-07-09">
+    <link rel="icon" href="/favicon.ico">
+    <link rel="stylesheet" href="/style.css">
+    <script>var t=localStorage.getItem('theme');if(t)document.documentElement.setAttribute('data-theme',t);</script>
+    <script src="/lib/marked.min.js"></script>
+    <script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']],
+          displayMath: [['$$', '$$'], ['\\[', '\\]']]
+        },
+        svg: { fontCache: 'global' }
+      };
+    </script>
+    <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+    <script async defer data-website-id="b9e7a81c-fb4b-4238-96f6-2bdcb80dde85" data-auto-track="false" src="https://analytics.liusida.com/umami/script.js"></script>
+</head>
+<body>
+
+    <nav class="site-nav">
+        <a href="/" class="site-nav-home">Sida Liu</a>
+        <div class="site-nav-links">
+            <a href="/research-notes.html">Research Notes</a>
+            <a href="/writing.html">Writing</a>
+            <a href="/projects.html">Projects</a>
+            <a href="/journey.html">Journey</a>
+            <a href="/bookshelf.html">Bookshelf</a>
+        </div>
+    </nav>
+
+    <main>
+        <article class="post">
+            <header class="post-header">
+                <h1 id="post-title">CUDA H2D Slowdown From Cold mmap-Backed safetensors Pages on GB10</h1>
+                <time id="post-date" datetime="2026-07-09">Jul 9, 2026</time>
+            </header>
+            <div id="post-content" data-prerendered>
+<h2>TL;DR</h2>
+<p>On my ASUS Ascent GX10, moving safetensors-backed CPU tensors to CUDA can be much slower than expected. I like this little machine and want it to punch as hard as it can, so I am writing down the workaround for other GX10 / GB10 owners who hit the same strange slowdown.</p>
+<p>Two workarounds helped:</p>
+<ul>
+<li>Direct <code>safetensors</code>: materialize first, then call <code>.to(&quot;cuda&quot;)</code>.</li>
+<li>Transformers: load on CPU, touch CPU model pages, then call <code>model.to(&quot;cuda&quot;)</code>.</li>
+</ul>
+<p>Direct <code>safetensors</code>:</p>
+<pre><code class="language-python">x = handle.get_slice(key)[...]
+x = x.to(&quot;cuda&quot;)
+</code></pre>
+<p>Transformers:</p>
+<pre><code class="language-python">model = AutoModelForCausalLM.from_pretrained(..., device_map=&quot;cpu&quot;)
+touch_model_cpu_pages(model)
+model = model.to(&quot;cuda&quot;)
+</code></pre>
+<p>The helper function for <code>touch_model_cpu_pages</code> is below. This appears to be specific to my GB10 setup.</p>
+<h2>The Machine</h2>
+<p>I was debugging this on my ASUS Ascent GX10. It is one of the small desktop AI systems built around NVIDIA GB10, the Grace Blackwell chip also used in NVIDIA DGX Spark and partner variants such as Dell Pro Max with GB10 and HP ZGX Nano.</p>
+<h2>The Symptom</h2>
+<p>Loading weights from safetensors into CPU memory looked fast:</p>
+<pre><code class="language-text">Loading weights: 100%|...| 434/434 [00:00&lt;00:00, thousands it/s]
+</code></pre>
+<p>But moving the model to CUDA could be very slow:</p>
+<pre><code class="language-text">Moving model to cuda...
+Moved model to cuda in 42.79s
+</code></pre>
+<p>For a 3B model with about 5.75 GiB of weights, this was much slower than I expected.</p>
+<h2>Direct safetensors</h2>
+<p>The direct <code>safetensors.safe_open</code> case has a very simple workaround: do not combine materialization and CUDA transfer in one expression.</p>
+<p>Bad:</p>
+<pre><code class="language-python">x = safe_slice[...].to(&quot;cuda&quot;)
+</code></pre>
+<p>Good:</p>
+<pre><code class="language-python">x = safe_slice[...]
+x = x.to(&quot;cuda&quot;)
+</code></pre>
+<p>Timing on my GB10 machine:</p>
+<pre><code class="language-text">one-line slice[...].to             avg=0.0913s min=0.0168s max=1.1939s
+two-line x.to                      avg=0.0188s min=0.0174s max=0.0273s
+two-line view(shape).to            avg=0.0262s min=0.0174s max=0.0686s
+two-line page-touch.to             avg=0.0453s min=0.0183s max=0.0790s
+</code></pre>
+<p>The plain two-line version was best. Extra <code>view()</code>, <code>detach()</code>, or page-touch did not help in this direct safetensors path.</p>
+<h2>Transformers</h2>
+<p>For Transformers, the situation is slightly different.</p>
+<p>This is better than direct CUDA loading:</p>
+<pre><code class="language-python">model = AutoModelForCausalLM.from_pretrained(..., device_map=&quot;cpu&quot;)
+model = model.to(&quot;cuda&quot;)
+</code></pre>
+<p>But on my machine, <code>model.to(&quot;cuda&quot;)</code> could still be slow. Touching each CPU tensor once before moving the model to CUDA helped a lot:</p>
+<pre><code class="language-python">def touch_model_cpu_pages(model) -&gt; int:
+    touched = 0
+    with torch.no_grad():
+        for tensor in list(model.parameters()) + list(model.buffers()):
+            if tensor.device.type != &quot;cpu&quot; or tensor.numel() == 0:
+                continue
+            u8 = tensor.detach().view(torch.uint8).reshape(-1)
+            _ = u8[::4096].sum().item()
+            touched += int(u8.numel())
+    return touched
+</code></pre>
+<p>Then:</p>
+<pre><code class="language-python">model = AutoModelForCausalLM.from_pretrained(
+    model_id,
+    dtype=torch.bfloat16,
+    device_map=&quot;cpu&quot;,
+)
+touched = touch_model_cpu_pages(model)
+model = model.to(&quot;cuda&quot;)
+</code></pre>
+<p>Controlled test on <code>Qwen/Qwen2.5-Coder-3B</code>:</p>
+<pre><code class="language-text">without page-touch:
+load cpu:        0.41-0.77s
+model.to(cuda): 23.60-32.08s
+
+with page-touch:
+load cpu:        0.49-0.62s
+touch pages:     0.22-0.26s
+model.to(cuda):  8.12-9.94s
+</code></pre>
+<p>In a multi-model activation script, I saw the same direction:</p>
+<pre><code class="language-text">before page-touch: model.to(cuda) took about 36-45s
+after page-touch:  model.to(cuda) took about 3-10s
+</code></pre>
+<p>The page-touch itself was cheap, but it removed a large part of the transfer cost.</p>
+<h2>Why I Think This Happens</h2>
+<p>This was not just a PyTorch <code>.to()</code> artifact. Calling raw CUDA directly could reproduce the slow path:</p>
+<pre><code class="language-c">cudaMemcpy(dst_gpu, src_cpu, 134217728, cudaMemcpyHostToDevice);
+</code></pre>
+<p>where <code>src_cpu</code> is the <code>data_ptr()</code> of a safetensors/PyTorch CPU tensor.</p>
+<p>One run:</p>
+<pre><code class="language-text">safe_open raw cudaMemcpy           avg=1.2485s
+safe_open CPU page touch           avg=0.0011s
+safe_open touch then cudaMemcpy    avg=0.0238s
+safe_open CPU libc memcpy          avg=0.0988s
+</code></pre>
+<p>CPU reads were not the bottleneck. The expensive part was CUDA H2D from the untouched safetensors-backed memory.</p>
+<p>A pure <code>.cu</code> repro with a file-backed mmap pointer did not fully reproduce the 1.2s worst case, but it reproduced the same direction:</p>
+<pre><code class="language-text">remap cold mmap+80 -&gt; gpu          avg=0.09-0.11s
+touched mmap+80 -&gt; gpu             avg=0.0075s
+anon copy -&gt; gpu                   avg=0.0075s
+pinned copy -&gt; gpu                 avg=0.0075s
+</code></pre>
+<p>So my current interpretation is:</p>
+<blockquote>
+<p>On this GB10 setup, CUDA Host-to-Device copies can be unusually slow from cold safetensors / mmap-backed CPU memory. Materializing first, or touching CPU pages before CUDA transfer, avoids the slow path.</p>
+</blockquote>
+<p>I would not treat this as a general PyTorch rule for every machine. On RTX 4090 systems, the same workload did not show this bug.</p>
+<h2>Appendix: Minimal Test Script</h2>
+<p>This script compares <code>model.to(&quot;cuda&quot;)</code> with and without the CPU page-touch workaround:</p>
+<pre><code class="language-python">import argparse
+import time
+
+import torch
+from transformers import AutoModelForCausalLM
+
+
+def touch_model_cpu_pages(model) -&gt; int:
+    touched = 0
+    with torch.no_grad():
+        for tensor in list(model.parameters()) + list(model.buffers()):
+            if tensor.device.type != &quot;cpu&quot; or tensor.numel() == 0:
+                continue
+            u8 = tensor.detach().view(torch.uint8).reshape(-1)
+            _ = u8[::4096].sum().item()
+            touched += int(u8.numel())
+    return touched
+
+
+parser = argparse.ArgumentParser()
+parser.add_argument(&quot;--model&quot;, default=&quot;Qwen/Qwen2.5-Coder-3B&quot;)
+parser.add_argument(&quot;--touch&quot;, action=&quot;store_true&quot;)
+args = parser.parse_args()
+
+print(f&quot;GPU:   {torch.cuda.get_device_name(0)}&quot;)
+print(f&quot;model: {args.model}&quot;)
+print(f&quot;touch: {args.touch}&quot;)
+
+t0 = time.perf_counter()
+model = AutoModelForCausalLM.from_pretrained(
+    args.model,
+    dtype=torch.bfloat16,
+    device_map=&quot;cpu&quot;,
+    local_files_only=True,
+    low_cpu_mem_usage=True,
+)
+print(f&quot;load cpu: {time.perf_counter() - t0:.2f}s&quot;)
+
+if args.touch:
+    t0 = time.perf_counter()
+    touched = touch_model_cpu_pages(model)
+    print(f&quot;touch cpu pages: {time.perf_counter() - t0:.2f}s, {touched / 1024**3:.2f} GiB&quot;)
+
+torch.cuda.synchronize()
+t0 = time.perf_counter()
+model = model.to(&quot;cuda&quot;)
+torch.cuda.synchronize()
+print(f&quot;model.to(cuda): {time.perf_counter() - t0:.2f}s&quot;)
+</code></pre>
+<p>Run:</p>
+<pre><code class="language-bash">python test_transformers_cpu_touch_to_cuda.py
+python test_transformers_cpu_touch_to_cuda.py --touch
+</code></pre>
+<p>On my GX10, I usually see something like:</p>
+<pre><code class="language-text">without --touch:
+load cpu:        0.41-0.77s
+model.to(cuda): 23.60-32.08s
+
+with --touch:
+load cpu:        0.49-0.62s
+touch cpu pages: 0.22-0.26s
+model.to(cuda):  8.12-9.94s
+</code></pre>
+</div>
+        </article>
+        <section class="comments-panel" aria-label="Comments">
+            <div id="remark42"></div>
+        </section>
+    </main>
+    <footer class="footer">
+        <div class="social-links">
+            <a href="https://github.com/liusida" aria-label="GitHub" target="_blank" rel="noopener noreferrer">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+            </a>
+            <a href="https://www.alphaxiv.org/@sida-liu" aria-label="AlphaXiv" target="_blank" rel="noopener noreferrer">
+                <span class="alphaxiv-icon" aria-hidden="true">αXiv</span>
+            </a>
+            <a href="https://x.com/liusida2007" aria-label="X / Twitter" target="_blank" rel="noopener noreferrer">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+            </a>
+            <a href="https://xhslink.com/m/9s7XWUIVsQs" aria-label="Xiaohongshu" target="_blank" rel="noopener noreferrer">
+                <img src="/images/xhs-logo.png" alt="小红书" class="xhs-icon">
+            </a>
+        </div>
+        <p class="footer-note">You can pronounce my name as <em>Star</em>, since that's what it sounds in Mandarin Chinese.</p>
+    </footer>
+
+    <script>
+    function getPostSlug() {
+        var params = new URLSearchParams(window.location.search);
+        var slug = params.get('slug');
+        if (slug) return slug;
+
+        var match = window.location.pathname.match(/^\/post\/([^\/]+)\/?$/);
+        return match ? decodeURIComponent(match[1]) : '';
+    }
+
+    function trackPostView(slug, meta) {
+        var title = meta && meta.title ? meta.title : slug;
+        var path = '/post/' + encodeURIComponent(slug);
+        var attempts = 0;
+
+        function send() {
+            if (window.umami && typeof window.umami.track === 'function') {
+                window.umami.track(function(props) {
+                    return Object.assign({}, props, {
+                        url: path,
+                        title: title + ' - Sida Liu'
+                    });
+                });
+                window.umami.track('post-view', {
+                    slug: slug,
+                    title: title
+                });
+                return;
+            }
+
+            attempts += 1;
+            if (attempts < 20) {
+                window.setTimeout(send, 250);
+            }
+        }
+
+        send();
+    }
+
+    (async function() {
+        var slug = getPostSlug();
+        if (!slug) {
+            document.getElementById('post-content').textContent = 'No post specified.';
+            return;
+        }
+
+        var preEl = document.getElementById('post-content');
+        if (preEl.hasAttribute('data-prerendered')) {
+            var preAttempts = 0;
+            (function typesetPre() {
+                if (window.MathJax && typeof window.MathJax.typesetPromise === 'function') {
+                    window.MathJax.typesetPromise([preEl]);
+                    return;
+                }
+                if (++preAttempts < 40) window.setTimeout(typesetPre, 100);
+            })();
+            trackPostView(slug, { title: document.getElementById('post-title').textContent });
+            return;
+        }
+
+        var cleanPath = '/post/' + encodeURIComponent(slug);
+        if (window.location.pathname !== cleanPath) {
+            window.history.replaceState(null, '', cleanPath);
+        }
+
+        try {
+            var results = await Promise.all([
+                fetch('/data/posts.json'),
+                fetch('/posts/' + slug + '.md')
+            ]);
+            var metaRes = results[0];
+            var mdRes = results[1];
+
+            if (!mdRes.ok) {
+                document.getElementById('post-content').textContent = 'Post not found.';
+                return;
+            }
+
+            var posts = await metaRes.json();
+            var md = await mdRes.text();
+            var meta = posts.find(function(p) { return p.slug === slug; });
+
+            if (meta) {
+                document.getElementById('post-title').textContent = meta.title;
+                var d = new Date(meta.date + 'T00:00:00');
+                var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+                document.getElementById('post-date').textContent = months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
+                document.title = meta.title + ' \u2014 Sida Liu';
+            }
+
+            var contentEl = document.getElementById('post-content');
+            contentEl.innerHTML = marked.parse(md);
+
+            var mathAttempts = 0;
+            function typesetPostMath() {
+                if (window.MathJax && typeof window.MathJax.typesetPromise === 'function') {
+                    window.MathJax.typesetPromise([contentEl]);
+                    return;
+                }
+                mathAttempts += 1;
+                if (mathAttempts < 40) {
+                    window.setTimeout(typesetPostMath, 100);
+                }
+            }
+            typesetPostMath();
+            trackPostView(slug, meta);
+        } catch (e) {
+            document.getElementById('post-content').textContent = 'Error loading post.';
+        }
+    })();
+    </script>
+    <script>
+      var remark_config = {
+        host: "https://remark.liusida.com",
+        site_id: "liusida.com",
+        url: "https://liusida.com/post/" + encodeURIComponent(getPostSlug())
+      };
+    </script>
+    <script src="https://remark.liusida.com/web/embed.js"></script>    
+</body>
+</html>
