@@ -45,18 +45,19 @@ button{cursor:pointer}button:disabled{opacity:.45;cursor:default}button:focus-vi
 .offsets{display:flex;flex-wrap:wrap;gap:.35rem .8rem;margin:0;color:var(--muted);font-size:13px}
 .offsets .offset-item{display:inline-flex;align-items:center;gap:.35rem}
 .offsets .block{width:5.3rem;color:var(--ink);font-weight:400}
-#workspace > .panel{width:100%}
+#workspace > .panel{box-sizing:border-box;width:fit-content;max-width:100%;margin-inline:auto}
 #grid{overflow-x:auto}
-#grid table{min-width:100%;margin:0;border-spacing:0;table-layout:fixed}
+#grid table{margin:0;border-spacing:0;table-layout:fixed}
 #grid table,#grid th,#grid td{border:0}
 #grid th,#grid td{padding:0}
-#grid .block{height:1.65rem;padding:0}
+#grid .token-total-row > *{border-bottom:3px solid #8290a2}
+#grid .block{box-sizing:border-box;width:80px;height:1.65rem;padding:0}
 #grid th{text-align:left;font-size:13px;overflow-wrap:anywhere}
 .token-pill{display:inline-block;max-width:100%;padding:.1rem .48rem;border-radius:999px;background:#e7edf4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;vertical-align:middle}
 #grid th:first-child{width:160px}
 #grid td{vertical-align:middle;min-width:0}
 #grid .score{overflow:hidden;text-overflow:ellipsis}
-.block{display:flex;align-items:center;justify-content:center;width:100%;height:2.3rem;padding:.25rem;border:1px solid #18273a26;border-radius:5px;text-align:center;overflow-wrap:anywhere}
+.block{display:flex;align-items:center;justify-content:center;height:2.3rem;padding:.25rem;border:1px solid #18273a26;border-radius:5px;text-align:center;overflow-wrap:anywhere}
 .block.target{background:#fff;outline:2px solid #19395e;font-weight:750}
 .block.empty{background:#fafbfd;color:#526277}
 #grid tr.mlp-row .block.empty{background:#e2e7ed}
@@ -264,7 +265,7 @@ function text(parent, tag, value) {
   parent.append(node);
   return node;
 }
-function signed(value, decimals = 2) {
+function signed(value, decimals = 0) {
   const rounded = value.toFixed(decimals);
   return Number(rounded) === 0 ? (0).toFixed(decimals) : (value > 0 ? "+" : "") + rounded;
 }
@@ -279,7 +280,7 @@ function build(data, initialStop = 1) {
   if (get("export")) get("export").disabled = false;
 }
 function sourceColor(value, max) {
-  if (Number(value.toFixed(2)) === 0) return "#eef0f3";
+  if (Number(value.toFixed(0)) === 0) return "#eef0f3";
   const rgb = value < 0 ? "64 134 189" : "215 121 56";
   return `rgb(${rgb} / ${max && value ? .12 + .52 * Math.min(1, Math.abs(value) / max) : 0})`;
 }
@@ -288,7 +289,7 @@ function buildGrid() {
   latticeRows = [];
   highlighted = new Set();
   const table = text(grid, "table", "");
-  table.style.width = `${164 + result.tokens.length * 92}px`;
+  table.style.width = `${164 + result.tokens.length * 80}px`;
   const header = text(text(table, "thead", ""), "tr", "");
   text(header, "th", "Submodule");
   for (const token of result.tokens) {
@@ -365,7 +366,7 @@ function selectStop(index) {
   for (const [id, value] of offsets) {
     const block = get(id);
     const available = Number.isFinite(value);
-    block.textContent = available ? signed(percentage(value)) + "%" : "—";
+    block.textContent = available ? signed(percentage(value)).replace(/^\+/, "") + "%" : "—";
     block.title = available ? signed(value, 5) : "";
     block.style.backgroundColor = available ? sourceColor(percentage(value), percentageMax) : "#eef0f3";
   }
@@ -405,7 +406,7 @@ function selectStop(index) {
   for (const [cell, state] of next) {
     const {block, pos} = cell;
     block.className = state.target ? "block target" : "block score";
-    block.textContent = state.target ? "Target" : signed(percentage(state.value)) + "%";
+    block.textContent = state.target ? "Target" : signed(percentage(state.value)).replace(/^\+/, "") + "%";
     block.title = state.target ? state.label : `${state.label} · token ${pos} · ${signed(state.value, 5)}`;
     block.style.backgroundColor = state.target ? "" : sourceColor(percentage(state.value), percentageMax);
   }
