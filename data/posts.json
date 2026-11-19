@@ -1,5 +1,12 @@
 [
   {
+    "title": "To the Bottom",
+    "date": "2026-11-19",
+    "slug": "to-the-bottom",
+    "summary": "Neural networks give us direct access to their elementary computations. Examining their numerical details can reveal hidden structures and provide a foundation for explanations and theories.",
+    "theme": "AI and Cognition"
+  },
+  {
     "title": "Not Everything in Mech Interp Has to Be Causal",
     "date": "2026-11-06",
     "slug": "not-everything-in-mech-interp-has-to-be-causal",
